@@ -1,0 +1,49 @@
+﻿using Kai_Engine.ENGINE.Components;
+using Raylib_cs;
+using System.Numerics;
+
+namespace Kai_Engine.ENGINE.Entities
+{
+    public interface IEntity { void Render(); }
+
+    public class GameObject : IEntity
+    {
+        //Components List
+        public List<IComponent> Components { get; } = new List<IComponent>();
+
+        //Default Components
+        public kTransform Transform { get; set; }
+        public kSprite    Sprite    { get; set; }
+
+        public GameObject(Texture2D sprite, Vector2 position)
+        {
+            Transform = new kTransform { position = position, size = new Vector2(16, 16) };
+            Sprite    = new kSprite    { sprite = sprite };
+
+            //Add default components to component list so they can be accessed through GetComponent
+            Components.Add(Transform);
+            Components.Add(Sprite);
+        }
+
+        public void AddComponent(IComponent component)
+        {
+            Components.Add(component);
+        }
+
+        public T? GetComponent<T>() where T : class, IComponent
+        {
+            // Find the first component of the specified type
+            foreach (var component in Components)
+            {
+                if (component is T typedComponent)
+                    return typedComponent;
+            }
+            return null; // Component not found
+        }
+
+        public void Render()
+        {
+            Raylib.DrawTexture(Sprite.sprite, (int)Transform.position.X, (int)Transform.position.Y, Color.White);
+        }
+    }
+}
