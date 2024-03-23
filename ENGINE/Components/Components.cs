@@ -1,4 +1,4 @@
-﻿using Raylib_cs;
+﻿using Raylib_CsLo;
 using System.Numerics;
 using Kai_Engine.ENGINE.Utils;
 
@@ -14,7 +14,7 @@ namespace Kai_Engine.ENGINE.Components
     }
     public class kSprite : IComponent
     {
-        public Texture2D sprite;
+        public Texture sprite;
         public string? filePath;
     }
     public class kHealth : IComponent

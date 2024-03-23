@@ -1,8 +1,9 @@
-﻿using Raylib_cs;
+﻿using Kai_Engine.EDITOR;
 using Kai_Engine.ENGINE.Systems;
 using Kai_Engine.ENGINE.Utils;
+using Raylib_CsLo;
 
-namespace Kai_Engine
+namespace Kai_Engine.ENGINE
 {
     internal class Program
     {
@@ -13,10 +14,10 @@ namespace Kai_Engine
         internal static int MapWidth  = 960;
         internal static int MapHeight = 540;
 
-
         static void Main()
         {
             EntityManager entityManager = new();
+            Kai_Editor kaiEditor = new();
 
             //Initialize Window
             Raylib.InitWindow(MapWidth, MapHeight, _engineName);
@@ -37,7 +38,7 @@ namespace Kai_Engine
 
                 //Draw
                 Raylib.BeginDrawing();
-                Raylib.ClearBackground(Color.Black);
+                Raylib.ClearBackground(Raylib.BLACK);
 
                     entityManager.Render();
 
@@ -46,6 +47,6 @@ namespace Kai_Engine
 
             //Cleanup
             Raylib.CloseWindow();
-        } 
+        }
     }
 }

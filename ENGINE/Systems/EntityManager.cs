@@ -3,7 +3,7 @@ using Kai_Engine.ENGINE.Entities;
 using Kai_Engine.ENGINE.Utils;
 using Kai_Engine.GAME.Gameplay;
 using System.Numerics;
-using Raylib_cs;
+using Raylib_CsLo;
 
 namespace Kai_Engine.ENGINE.Systems
 {
@@ -14,21 +14,21 @@ namespace Kai_Engine.ENGINE.Systems
 
         #region Entity Variables
         //List of all entities in the game
-        public List<IEntity> Entities       = new();
-
-        //Wall Entity
-        public List<GameObject> WallObjects = new();
-        private string _wallSpritePath      = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\wall_sprite.png";
-        private Texture2D _wallSprite       = new();
-
-        //Floor Entity
-        private string _floorSpritePath     = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\floor_sprite.png";
-        private Texture2D _floorSprite      = new();
-
-        //Player Entity
-        public GameObject? player;
-        private string _playerSpritePath    = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\player_sprite.png";
-        private Texture2D _playerSprite     = new();
+        public List<IEntity> Entities        = new();
+                                             
+        //Wall Entity                        
+        public List<GameObject> WallObjects  = new();
+        private string _wallSpritePath       = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\wall_sprite.png";
+        private Texture _wallSprite          = new();
+                                             
+        //Floor Entity                       
+        private string _floorSpritePath      = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\floor_sprite.png";
+        private Texture _floorSprite         = new();
+                                             
+        //Player Entity                      
+        public GameObject? player;           
+        private string _playerSpritePath     = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\player_sprite.png";
+        private Texture _playerSprite        = new();
         #endregion
 
         public void Start()
@@ -68,8 +68,9 @@ namespace Kai_Engine.ENGINE.Systems
             if (player != null)
             {
                 kCollider? playerCollider = player.GetComponent<kCollider>();
-                playerCollider.debugColor = Color.White;
                 playerCollider.DrawBounds(player.Transform);
+
+                playerCollider.debugColor = Raylib.WHITE;
             }
         }
 

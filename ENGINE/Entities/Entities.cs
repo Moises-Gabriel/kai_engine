@@ -1,5 +1,5 @@
 ﻿using Kai_Engine.ENGINE.Components;
-using Raylib_cs;
+using Raylib_CsLo;
 using System.Numerics;
 
 namespace Kai_Engine.ENGINE.Entities
@@ -15,7 +15,7 @@ namespace Kai_Engine.ENGINE.Entities
         public kTransform Transform { get; set; }
         public kSprite    Sprite    { get; set; }
 
-        public GameObject(Texture2D sprite, Vector2 position)
+        public GameObject(Texture sprite, Vector2 position)
         {
             Transform = new kTransform { position = position, size = new Vector2(16, 16) };
             Sprite    = new kSprite    { sprite = sprite };
@@ -43,7 +43,7 @@ namespace Kai_Engine.ENGINE.Entities
 
         public void Render()
         {
-            Raylib.DrawTexture(Sprite.sprite, (int)Transform.position.X, (int)Transform.position.Y, Color.White);
+            Raylib.DrawTexture(Sprite.sprite, (int)Transform.position.X, (int)Transform.position.Y, Raylib.WHITE);
         }
     }
 }

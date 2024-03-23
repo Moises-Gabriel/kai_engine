@@ -1,7 +1,7 @@
 ﻿using Kai_Engine.ENGINE.Components;
 using Kai_Engine.ENGINE.Entities;
 using Kai_Engine.ENGINE.Utils;
-using Raylib_cs;
+using Raylib_CsLo;
 
 namespace Kai_Engine.GAME.Gameplay
 {
@@ -13,16 +13,16 @@ namespace Kai_Engine.GAME.Gameplay
         public void MovePlayer(GameObject player)
         {
             //Keyboard map
-            if (Raylib.IsKeyPressed(KeyboardKey.W))
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_W))
                 player.Transform.position.Y -= 17;
 
-            if (Raylib.IsKeyPressed(KeyboardKey.A))
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_A))
                 player.Transform.position.X -= 17;
 
-            if (Raylib.IsKeyPressed(KeyboardKey.S))
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_S))
                 player.Transform.position.Y += 17;
 
-            if (Raylib.IsKeyPressed(KeyboardKey.D))
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_D))
                 player.Transform.position.X += 17;
         }
 
