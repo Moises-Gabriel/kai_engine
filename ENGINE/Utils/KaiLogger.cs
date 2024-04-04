@@ -2,7 +2,7 @@
 {
     public static class KaiLogger
     {
-        public static void LogInfo(string message, bool spaced)
+        public static void Info(string message, bool spaced)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             if (spaced)
@@ -13,7 +13,7 @@
 
         }
 
-        public static void LogWarn(string message, bool spaced)
+        public static void Warn(string message, bool spaced)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             if (spaced)
@@ -23,7 +23,7 @@
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        public static void LogError(string message, bool spaced)
+        public static void Error(string message, bool spaced)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             if (spaced)

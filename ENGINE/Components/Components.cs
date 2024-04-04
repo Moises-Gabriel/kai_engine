@@ -1,4 +1,4 @@
-﻿using Raylib_CsLo;
+﻿using Raylib_cs;
 using System.Numerics;
 using Kai_Engine.ENGINE.Utils;
 
@@ -7,6 +7,10 @@ namespace Kai_Engine.ENGINE.Components
 
     public interface IComponent { }
 
+    public class kName : IComponent
+    {
+        public string? name;
+    }
     public class kTransform : IComponent
     {
         public Vector2 position;
@@ -14,7 +18,7 @@ namespace Kai_Engine.ENGINE.Components
     }
     public class kSprite : IComponent
     {
-        public Texture sprite;
+        public Texture2D sprite;
         public string? filePath;
     }
     public class kHealth : IComponent

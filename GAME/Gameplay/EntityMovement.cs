@@ -1,28 +1,30 @@
 ﻿using Kai_Engine.ENGINE.Components;
 using Kai_Engine.ENGINE.Entities;
+using Kai_Engine.ENGINE.Systems;
 using Kai_Engine.ENGINE.Utils;
-using Raylib_CsLo;
+using Raylib_cs;
 
 namespace Kai_Engine.GAME.Gameplay
 {
     internal class EntityMovement
     {
+        InputHandling inputHandling = new();
         public bool _colliding;
 
         //TODO: MOVEMENT NEEDS TO BE REDONE. THERE SHOULD BE AN INPUT HANDLER
         public void MovePlayer(GameObject player)
         {
             //Keyboard map
-            if (Raylib.IsKeyPressed(KeyboardKey.KEY_W))
+            if (inputHandling.Horizontal() == -1)
                 player.Transform.position.Y -= 17;
 
-            if (Raylib.IsKeyPressed(KeyboardKey.KEY_A))
+            if (Raylib.IsKeyPressed(KeyboardKey.A))
                 player.Transform.position.X -= 17;
 
-            if (Raylib.IsKeyPressed(KeyboardKey.KEY_S))
+            if (Raylib.IsKeyPressed(KeyboardKey.S))
                 player.Transform.position.Y += 17;
 
-            if (Raylib.IsKeyPressed(KeyboardKey.KEY_D))
+            if (Raylib.IsKeyPressed(KeyboardKey.D))
                 player.Transform.position.X += 17;
         }
 

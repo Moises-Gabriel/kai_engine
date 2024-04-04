@@ -1,10 +1,10 @@
 ﻿using Kai_Engine.ENGINE.Components;
-using Raylib_CsLo;
+using Raylib_cs;
 using System.Numerics;
 
 namespace Kai_Engine.ENGINE.Entities
 {
-    public interface IEntity { void Render(); }
+    public interface IEntity { void Draw(); }
 
     public class GameObject : IEntity
     {
@@ -12,11 +12,13 @@ namespace Kai_Engine.ENGINE.Entities
         public List<IComponent> Components { get; } = new List<IComponent>();
 
         //Default Components
+        public kName      Name      { get; set; }
         public kTransform Transform { get; set; }
         public kSprite    Sprite    { get; set; }
 
-        public GameObject(Texture sprite, Vector2 position)
+        public GameObject(Texture2D sprite, Vector2 position, string name)
         {
+            Name      = new kName      { name = name };
             Transform = new kTransform { position = position, size = new Vector2(16, 16) };
             Sprite    = new kSprite    { sprite = sprite };
 
@@ -41,9 +43,9 @@ namespace Kai_Engine.ENGINE.Entities
             return null; // Component not found
         }
 
-        public void Render()
+        public void Draw()
         {
-            Raylib.DrawTexture(Sprite.sprite, (int)Transform.position.X, (int)Transform.position.Y, Raylib.WHITE);
+            Raylib.DrawTexture(Sprite.sprite, (int)Transform.position.X, (int)Transform.position.Y, Color.White);
         }
     }
 }

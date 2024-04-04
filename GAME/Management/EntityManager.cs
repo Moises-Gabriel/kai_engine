@@ -3,9 +3,10 @@ using Kai_Engine.ENGINE.Entities;
 using Kai_Engine.ENGINE.Utils;
 using Kai_Engine.GAME.Gameplay;
 using System.Numerics;
-using Raylib_CsLo;
+using Raylib_cs;
+using Kai_Engine.ENGINE;
 
-namespace Kai_Engine.ENGINE.Systems
+namespace Kai_Engine.GAME.Management
 {
     internal class EntityManager
     {
@@ -16,19 +17,20 @@ namespace Kai_Engine.ENGINE.Systems
         //List of all entities in the game
         public List<IEntity> Entities        = new();
                                              
-        //Wall Entity                        
+        //Wall Entity                         
         public List<GameObject> WallObjects  = new();
         private string _wallSpritePath       = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\wall_sprite.png";
-        private Texture _wallSprite          = new();
+        private Texture2D _wallSprite        = new();
                                              
-        //Floor Entity                       
+        //Floor Entity                        
         private string _floorSpritePath      = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\floor_sprite.png";
-        private Texture _floorSprite         = new();
+        private Texture2D _floorSprite       = new();
                                              
-        //Player Entity                      
+        //Player Entity                       
         public GameObject? player;           
         private string _playerSpritePath     = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\player_sprite.png";
-        private Texture _playerSprite        = new();
+        private Texture2D _playerSprite      = new();
+        public bool PlayerCreated            = false;
         #endregion
 
         public void Start()
@@ -48,8 +50,8 @@ namespace Kai_Engine.ENGINE.Systems
             foreach (var wall in WallObjects)
             {
                 kCollider? playerCollider = player.GetComponent<kCollider>();
-                kCollider? wallCollider   = wall.GetComponent<kCollider>();
-                
+                kCollider? wallCollider = wall.GetComponent<kCollider>();
+
                 if (playerCollider != null && wallCollider != null)
                 {
                     EntityMovement.CheckCollision(playerCollider, wallCollider);
@@ -57,11 +59,11 @@ namespace Kai_Engine.ENGINE.Systems
             }
         }
 
-        public void Render()
+        public void Draw()
         {
             foreach (var entity in Entities)
             {
-                entity.Render();
+                entity.Draw();
             }
 
             //DEBUG
@@ -70,20 +72,21 @@ namespace Kai_Engine.ENGINE.Systems
                 kCollider? playerCollider = player.GetComponent<kCollider>();
                 playerCollider.DrawBounds(player.Transform);
 
-                playerCollider.debugColor = Raylib.WHITE;
+                playerCollider.debugColor = Color.White;
             }
         }
 
         public void SpawnPlayer(Vector2 spawnPoint)
         {
-            player = new GameObject(_playerSprite, spawnPoint);
+            GameObject _player = new GameObject(_playerSprite, spawnPoint, "Player");
+            player = _player;
 
             //Add Components
-            kHealth playerHealth        = new kHealth();   //initialize Health component
-            playerHealth.health         = 50;              //set the health                        
-                                                                                                   
-            kCollider playerCollider    = new kCollider(); //initialize Collider component
-            kTransform playerTransform  = player.Transform;
+            kHealth playerHealth = new kHealth();          //initialize Health component
+            playerHealth.health = 50;                      //set the health                        
+                                                           
+            kCollider playerCollider = new kCollider();    //initialize Collider component
+            kTransform playerTransform = player.Transform;
 
             playerCollider.colliderSize = new Vector4((int)playerTransform.position.X - 4, (int)playerTransform.position.Y - 4,
                                                       (int)playerTransform.size.X + 8, (int)playerTransform.size.Y + 8);
@@ -98,34 +101,34 @@ namespace Kai_Engine.ENGINE.Systems
         {
             //Parameter is maximum steps for walker
             //Higher steps = more walls
-            DrunkardsWalk(5000); 
+            DrunkardsWalk(5000);
         }
 
         /// <summary>
         /// Utilizes the Drunkard's Walk algorithm to create a nice cave system.
         /// The caves are generally cavernous with few smaller rooms. 
         /// </summary>
-        
+
         #region Drunkard's Walk
         //List of Taken positions
         private List<Vector2> takenPositions = new List<Vector2>();
 
         //List of Free positions
-        private List<Vector2> freePositions  = new List<Vector2>();
+        private List<Vector2> freePositions = new List<Vector2>();
 
         void DrunkardsWalk(int maxSteps)
         {
-            KaiLogger.LogInfo($"Starting Walk", false);
+            KaiLogger.Info($"Starting Walk", false);
 
             int tileSize = 16;
 
             //Initializing wall entity components
             kCollider wallCollider = new kCollider();
-            kHealth wallHealth     = new kHealth();
-            kTag wallTag           = new kTag();
+            kHealth wallHealth = new kHealth();
+            kTag wallTag = new kTag();
 
-            wallHealth.health      = 100;
-            wallTag.tag            = "wall";
+            wallHealth.health = 100;
+            wallTag.tag = "wall";
 
             /* --- Drunkard's Walk Algorithm --- */
 
@@ -133,10 +136,11 @@ namespace Kai_Engine.ENGINE.Systems
             (int dx, int dy)[] directions = { (0, 1), (0, -1), (-1, 0), (1, 0) };
 
             //Pick a start point
-            Random random      = new Random();
+            Random random = new Random();
             Vector2 currentPos = new Vector2(0, 0);
 
             //Loop through the walk
+            int wallCounter = 0;
             for (int step = 0; step < maxSteps; step++)
             {
                 //choose direction at random
@@ -153,7 +157,8 @@ namespace Kai_Engine.ENGINE.Systems
                     currentPos.X = newX;
                     currentPos.Y = newY;
 
-                    GameObject walls = new GameObject(_wallSprite, new Vector2(currentPos.X, currentPos.Y));
+                    wallCounter++;
+                    GameObject walls = new GameObject(_wallSprite, new Vector2(currentPos.X, currentPos.Y), $"Wall_{wallCounter}");
 
                     //Components
                     walls.AddComponent(wallCollider);
@@ -177,7 +182,7 @@ namespace Kai_Engine.ENGINE.Systems
                 for (int y = 0; y < Program.MapHeight; y += tileSize + 1)
                 {
                     Vector2 cellPosition = new Vector2(x, y);
-                    bool isTaken         = false;
+                    bool isTaken = false;
 
                     // Check if the current position is in the list of taken positions
                     foreach (Vector2 pos in takenPositions)
@@ -193,24 +198,27 @@ namespace Kai_Engine.ENGINE.Systems
             }
 
             //Place floors
+            int floorCounter = 0;
             foreach (Vector2 pos in freePositions)
             {
-                GameObject floor = new GameObject(_floorSprite, pos);
+                floorCounter++;
+                GameObject floor = new GameObject(_floorSprite, pos, $"Floor_{floorCounter}");
                 Entities.Add(floor);
             }
 
             //Spawn player at a free location
             Vector2 spawnPoint = freePositions[random.Next(0, freePositions.Count)];
             SpawnPlayer(spawnPoint);
+            PlayerCreated = true;
 
-            
+
             takenPositions.Add(spawnPoint); //add player spawn point to taken positions
             freePositions.Remove(spawnPoint); //remove player spawn point from available positions
 
             //DEBUG
-            KaiLogger.LogInfo($"Spawn Point: {spawnPoint}", false);
-            KaiLogger.LogInfo("Taken Positions: " + takenPositions.Count.ToString(), false);
-            KaiLogger.LogInfo("Free Positions: " + freePositions.Count.ToString(), false);
+            KaiLogger.Info($"Spawn Point: {spawnPoint}", false);
+            KaiLogger.Info("Taken Positions: " + takenPositions.Count.ToString(), false);
+            KaiLogger.Info("Free Positions: " + freePositions.Count.ToString(), false);
         }
         #endregion
     }

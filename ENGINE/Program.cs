@@ -1,17 +1,17 @@
 ﻿using Kai_Engine.EDITOR;
-using Kai_Engine.ENGINE.Systems;
 using Kai_Engine.ENGINE.Utils;
-using Raylib_CsLo;
+using Kai_Engine.GAME.Management;
+using Raylib_cs;
 
 namespace Kai_Engine.ENGINE
 {
     internal class Program
     {
-        private const string _engineName    = "Kai Engine";
+        private const string _engineName = "Kai";
         private const string _engineVersion = "0.0.1";
-        private const string _gameName      = "Down & Down";
+        private const string _gameName = "Down & Down";
 
-        internal static int MapWidth  = 960;
+        internal static int MapWidth = 960;
         internal static int MapHeight = 540;
 
         static void Main()
@@ -19,15 +19,21 @@ namespace Kai_Engine.ENGINE
             EntityManager entityManager = new();
             Kai_Editor kaiEditor = new();
 
+            //Start Engine Processes
+            KaiLogger.Important($"{_engineName}: [v{_engineVersion}]", false);
+            KaiLogger.Important($"Game: {_gameName}", false);
+
             //Initialize Window
             Raylib.InitWindow(MapWidth, MapHeight, _engineName);
 
+            //Initialize ImGUI
+            kaiEditor.Init();
 
-            //Start Engine Processes
-            KaiLogger.Important($"{_engineName}: [v{_engineVersion}]", true);
-            KaiLogger.Important($"Game: {_gameName}", true);
-
+            //Start Entity Manager
             entityManager.Start();
+
+            //Start Editor
+            kaiEditor.Start(entityManager);
 
             //Main Game Loop
             while (!Raylib.WindowShouldClose())
@@ -38,9 +44,10 @@ namespace Kai_Engine.ENGINE
 
                 //Draw
                 Raylib.BeginDrawing();
-                Raylib.ClearBackground(Raylib.BLACK);
+                Raylib.ClearBackground(Color.Black);
 
-                    entityManager.Render();
+                entityManager.Draw();
+                kaiEditor.Draw();
 
                 Raylib.EndDrawing();
             }
