@@ -19,30 +19,27 @@ namespace Kai_Engine.ENGINE
             EntityManager entityManager = new();
             Kai_Editor kaiEditor = new();
 
-            //Start Engine Processes
+            //Engine Info
             KaiLogger.Important($"{_engineName}: [v{_engineVersion}]", false);
             KaiLogger.Important($"Game: {_gameName}", false);
 
-            //Initialize Window
+            //------Initialize------
             Raylib.InitWindow(MapWidth, MapHeight, _engineName);
-
-            //Initialize ImGUI
             kaiEditor.Init();
 
-            //Start Entity Manager
+            //------Start------
             entityManager.Start();
-
-            //Start Editor
             kaiEditor.Start(entityManager);
 
             //Main Game Loop
             while (!Raylib.WindowShouldClose())
             {
 
-                //Update
+                //------Update------
                 entityManager.Update();
+                kaiEditor.Update(entityManager);
 
-                //Draw
+                //-------Draw------
                 Raylib.BeginDrawing();
                 Raylib.ClearBackground(Color.Black);
 

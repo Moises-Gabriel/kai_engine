@@ -71,7 +71,6 @@ namespace Kai_Engine.GAME.Management
             {
                 kCollider? playerCollider = player.GetComponent<kCollider>();
                 playerCollider.DrawBounds(player.Transform);
-
                 playerCollider.debugColor = Color.White;
             }
         }
@@ -88,8 +87,7 @@ namespace Kai_Engine.GAME.Management
             kCollider playerCollider = new kCollider();    //initialize Collider component
             kTransform playerTransform = player.Transform;
 
-            playerCollider.colliderSize = new Vector4((int)playerTransform.position.X - 4, (int)playerTransform.position.Y - 4,
-                                                      (int)playerTransform.size.X + 8, (int)playerTransform.size.Y + 8);
+            playerCollider.SetBounds(playerTransform);     //Set the bounds of the collider
 
             player.AddComponent(playerHealth);             //add Health component
             player.AddComponent(playerCollider);           //add Player Collider
@@ -100,7 +98,7 @@ namespace Kai_Engine.GAME.Management
         public void GenerateLevel()
         {
             //Parameter is maximum steps for walker
-            //Higher steps = more walls
+            //Higher steps = denser wall placement
             DrunkardsWalk(5000);
         }
 

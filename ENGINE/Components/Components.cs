@@ -44,9 +44,8 @@ namespace Kai_Engine.ENGINE.Components
         public Color debugColor;
         public void DrawBounds(kTransform transform)
         {
-            //the offsets allow the bounds to be slightly larger than the player
             if (transform != null)
-                Raylib.DrawRectangleLines((int)transform.position.X - 4, (int)transform.position.Y - 4, (int)transform.size.X + 8, (int)transform.size.Y + 8, debugColor);
+                Raylib.DrawRectangleLines((int)colliderSize.X, (int)colliderSize.Y, (int)colliderSize.Z, (int)colliderSize.W, debugColor);
         }
     }
 

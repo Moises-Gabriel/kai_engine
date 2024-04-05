@@ -1,6 +1,8 @@
-﻿using Kai_Engine.GAME.Management;
+﻿using Kai_Engine.ENGINE.Components;
+using Kai_Engine.GAME.Management;
 using Kai_Engine.ENGINE.Entities;
 using Kai_Engine.ENGINE.Utils;
+using System.Numerics;
 using rlImGui_cs;
 using Raylib_cs;
 using ImGuiNET;
@@ -11,11 +13,12 @@ namespace Kai_Engine.EDITOR
     {
         internal bool selectObject = false;
 
+        private Color _color = new Color();
+
         internal GameObject? player;
 
         public void Init()
         {
-            //Initialize ImGUI
             rlImGui.Setup(true);
             KaiLogger.Info("Initialized ImGUI", true);
         }
@@ -25,15 +28,27 @@ namespace Kai_Engine.EDITOR
             player = eManager.player;
         }
 
-        public void Update()
+        public void Update(EntityManager eManager)
         {
+            foreach (var wall in eManager.WallObjects)
+            {
+                kCollider? wallCollider = wall.GetComponent<kCollider>();
 
+                if (wallCollider != null)
+                {
+                    MouseOver(wallCollider);
+                }
+            }
         }
 
         public void Draw()
         {
+            Vector4 _mouseBounds = new Vector4(Raylib.GetMousePosition().X - 8, Raylib.GetMousePosition().Y - 8, 16, 16);
+
             if (selectObject)
-                Raylib.DrawRectangleLines((int)Raylib.GetMousePosition().X - 4, (int)Raylib.GetMousePosition().Y - 4, 8, 8, Color.White);;
+            {
+                Raylib.DrawRectangleLines((int)_mouseBounds.X, (int)_mouseBounds.Y, (int)_mouseBounds.Z, (int)_mouseBounds.W, _color);
+            }
             
             rlImGui.Begin();
 
@@ -41,6 +56,10 @@ namespace Kai_Engine.EDITOR
             if (ImGui.Begin("Kai Editor"))
             {
                 ImGui.Checkbox("Select GameObjects", ref selectObject);
+
+                ImGui.Spacing();
+                ImGui.Separator();
+                ImGui.Spacing();
                 ImGui.SeparatorText($"{player.Name.name}");
                 //Transform Dropdown
                 if (ImGui.TreeNode("Transform"))
@@ -59,22 +78,32 @@ namespace Kai_Engine.EDITOR
                     }
                     ImGui.TreePop();
                 }
-
-                //Sprite Dropdown
-                if (ImGui.TreeNode("Sprite"))
-                {
-                    //Empty for now
-                    ImGui.Button("Boop");
-                    ImGui.TreePop();
-                }
-
+                ImGui.Spacing();
                 ImGui.SeparatorText("GameObject");
-                
             }
 
             ImGui.End();
             rlImGui.End();
 
+        }
+
+        public bool AABBCollision(kCollider other)
+        {
+            Vector4 _mouseBounds = new Vector4(Raylib.GetMousePosition().X - 8, Raylib.GetMousePosition().Y - 8, 16, 16);
+            Vector4 otherCol     = other.colliderSize;
+
+            return _mouseBounds.X <= otherCol.X + otherCol.Z && _mouseBounds.Z + _mouseBounds.X >= otherCol.X
+                && _mouseBounds.Y <= otherCol.Y + otherCol.W && _mouseBounds.Y + _mouseBounds.W >= otherCol.Y;
+        }
+        public void MouseOver(kCollider other)
+        {
+            if  (selectObject)
+            {
+                if (AABBCollision(other))
+                    _color = Color.Red;
+                else
+                    _color = Color.White;
+            }
         }
     }
 }
