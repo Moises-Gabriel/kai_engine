@@ -6,22 +6,32 @@ using System.Numerics;
 using rlImGui_cs;
 using Raylib_cs;
 using ImGuiNET;
+using System.Xml.Serialization;
 
 namespace Kai_Engine.EDITOR
 {
     internal class Kai_Editor
     {
-        internal bool selectObject = false;
-        internal bool showCollision = false;    
-
         private readonly int _mouseBoundSize = 10;
-        private readonly int _mouseOffset = 4;
+        private readonly int _mouseOffset    = 4;
+
+        private bool _showCollision = false;    
+        private bool _selectObject  = false;
+
         private Color _mouseColor = Color.White;
 
-        private Vector2 _colliderSize = new (16,16);
-        private Vector4 _selectedObject = new ();
+        private Vector4 _selectedObjectTransform = new ();
+        private Vector2 _colliderSize            = new (16,16);
 
-        internal GameObject? player;
+        private GameObject? _selectedGameObject;
+
+
+        ///######################################################################
+        ///                           TODO:
+        ///     - Have selection box stay on object when object is moved
+        ///     - Keep reorganizing/optimizing editor code
+        /// 
+        ///######################################################################
 
         public void Init()
         {
@@ -31,7 +41,6 @@ namespace Kai_Engine.EDITOR
 
         public void Start(EntityManager eManager)
         {
-            player = eManager.player;
             KaiLogger.Info("Walls in scene: " + eManager.WallObjects.Count.ToString(), false);
         }
 
@@ -44,7 +53,9 @@ namespace Kai_Engine.EDITOR
         {
             DrawMouseCollider();
             DrawObjectColliders(eManager);
-            DrawSelected(Selected(_selectedObject));
+            DrawSelected(new Vector2 (_selectedObjectTransform.X, _selectedObjectTransform.Y), new Vector2(_selectedObjectTransform.Z, _selectedObjectTransform.W));
+
+            GameObject player = eManager.player;
 
             #region IMGUI
             rlImGui.Begin();
@@ -52,20 +63,20 @@ namespace Kai_Engine.EDITOR
             //Editor Window
             if (ImGui.Begin("Kai Editor"))
             {
-                ImGui.Checkbox("Select GameObjects", ref selectObject);
-                ImGui.Spacing();
-                ImGui.Separator();
-                ImGui.Spacing();
-                ImGui.Checkbox("Show Collision", ref showCollision);
-
-                ImGui.Spacing();
-                ImGui.Separator();
-                ImGui.Spacing();
-                ImGui.SeparatorText($"{player.Name.name}");
-                //Transform Dropdown
-                if (ImGui.TreeNode("Transform"))
+                ///######################################################################
+                ///                           Check Boxes
+                ///######################################################################
+                ImGui.Checkbox("Select GameObjects", ref _selectObject);
+                SeparatedSpacer();
+                ImGui.Checkbox("Show Collision", ref _showCollision);
+                SeparatedSpacer();
+                ///######################################################################
+                ///                             Player
+                ///######################################################################
+                if (player != null)
                 {
-                    if (player != null)
+                    ImGui.SeparatorText($"{player.Name.name}");
+                    if (ImGui.TreeNode("Transform"))
                     {
                         ImGui.PushItemWidth(50); //Set input field size
 
@@ -73,15 +84,26 @@ namespace Kai_Engine.EDITOR
                         ImGui.DragFloat("X", ref player.Transform.position.X);
                         ImGui.DragFloat("Y", ref player.Transform.position.Y);
 
-                        //TODO: Allow scaling for collider size
-                        ImGui.Text("Size");
-                        ImGui.DragFloat("W", ref _colliderSize.X);
-                        ImGui.DragFloat("H", ref _colliderSize.Y);
+                        ImGui.TreePop();
                     }
-                    ImGui.TreePop();
                 }
-                ImGui.Spacing();
-                ImGui.SeparatorText("GameObject");
+                ///######################################################################
+                ///                        Selected Object
+                ///######################################################################
+                if (_selectedGameObject != null)
+                {
+                    ImGui.SeparatorText($"{_selectedGameObject.Name.name}");
+                    if (ImGui.TreeNode("Object Transform"))
+                    {
+                        ImGui.PushItemWidth(50); //Set input field size
+
+                        ImGui.Text("Position");
+                        ImGui.DragFloat("X", ref _selectedGameObject.Transform.position.X);
+                        ImGui.DragFloat("Y", ref _selectedGameObject.Transform.position.Y);
+
+                        ImGui.TreePop();
+                    }
+                }
             }
 
             ImGui.End();
@@ -89,46 +111,48 @@ namespace Kai_Engine.EDITOR
             #endregion
         }
 
+        bool clicked = false;
         public void DetectMouse(EntityManager eManager)
         {
-            foreach (var wall in eManager.WallObjects)
+            foreach (var gameObject in eManager.AllObjects)
             {
-                kTransform wallTransform = wall.GetComponent<kTransform>();
-                kCollider wallCollider = wall.GetComponent<kCollider>();
+                //Grab wall's components
+                kTransform objectTransform = gameObject.GetComponent<kTransform>();
+                kCollider objectCollider   = gameObject.GetComponent<kCollider>();
 
-                Vector4 otherCol = wallCollider.ColliderSize(wallTransform, _colliderSize);
+                //Determine wall's collider size
+                Vector4 otherCol = objectCollider.ColliderSize(objectTransform, _colliderSize);
 
+                //AABB collision check between Mouse Position and Wall's collider
                 bool colliding = (int)GetMousePosition().X <= otherCol.X + otherCol.Z && (int)GetMousePosition().Z + (int)GetMousePosition().X >= otherCol.X
                               && (int)GetMousePosition().Y <= otherCol.Y + otherCol.W && (int)GetMousePosition().Y + (int)GetMousePosition().W >= otherCol.Y;
 
-                wallCollider.isColliding = colliding;
-                GameObject selectedObject = wallCollider.gameObject;
+                //Set each wall's collision boolean to the results of 'colliding'
+                objectCollider.isColliding = colliding;
 
-                if (selectObject)
+                if (_selectObject && objectCollider.isColliding)
                 {
-                    if (wallCollider.isColliding)
+                    //Do collision logic here
+                    if (Raylib.IsMouseButtonPressed(0) && !clicked)
                     {
-                        //Do collision logic here
-                        if (Raylib.IsMouseButtonPressed(0))
-                        {
-                            _selectedObject = Selected(otherCol);
-                            //TODO: Go into the entity manager and figure out why the name isn't coming out right (ie Wall_4999)
-                            KaiLogger.Info($"Selected Wall's Data: {selectedObject.Name.name}", false);
-                        }
-                        _mouseColor = Color.Red;
+                        clicked = true;
+
+                        //for outline drawing
+                        _selectedObjectTransform = Selected(gameObject.Transform.position, gameObject.Transform.size);
+                        
+                        _selectedGameObject = gameObject;
                     }
+                    else if (Raylib.IsMouseButtonReleased(0) && clicked)
+                        clicked = false;
+
+                    _mouseColor = Color.Red;
                 }
             }
         }
 
-        public Vector4 Selected(Vector4 selectedObject)
-        {
-            return selectedObject;
-        }
-
         private void DrawObjectColliders(EntityManager eManager)
         {
-            if (showCollision)
+            if (_showCollision)
             {
                 foreach (var wall in eManager.WallObjects)
                 {
@@ -138,21 +162,32 @@ namespace Kai_Engine.EDITOR
                 }
             }
         }
-        
         private void DrawMouseCollider()
         {
-            if (selectObject)
+            if (_selectObject)
             {
                 Raylib.DrawRectangleLinesEx(new Rectangle((int)GetMousePosition().X, (int)GetMousePosition().Y,
                                                               (int)GetMousePosition().Z, (int)GetMousePosition().W), 2, _mouseColor);
             }
             _mouseColor = Color.White;
         }
-
-        private void DrawSelected(Vector4 selectedObject)
+        private void DrawSelected(Vector2 selectedObjectPosition, Vector2 selectedObjectSize)
         {
-            Raylib.DrawRectangleLinesEx(new Rectangle((int)selectedObject.X, (int)selectedObject.Y,
-                                                      (int)selectedObject.Z, (int)selectedObject.W), 1, Color.White);
+            if (_selectObject)
+            {
+                Raylib.DrawRectangleLinesEx(new Rectangle((int)selectedObjectPosition.X, (int)selectedObjectPosition.Y,
+                                                          (int)selectedObjectSize.X, (int)selectedObjectSize.Y), 1, Color.White);
+            }
+        }
+        private void SeparatedSpacer()
+        {
+            ImGui.Spacing();
+            ImGui.Separator();
+            ImGui.Spacing();
+        }
+        private Vector4 Selected(Vector2 selectedObjectPosition, Vector2 selectedObjectSize)
+        {
+            return new Vector4 (selectedObjectPosition.X, selectedObjectPosition.Y, selectedObjectSize.X, selectedObjectSize.Y);
         }
         private Vector4 GetMousePosition()
         {
