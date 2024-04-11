@@ -1,7 +1,6 @@
 ﻿using Kai_Engine.ENGINE.Components;
 using Kai_Engine.ENGINE.Entities;
 using Kai_Engine.ENGINE.Utils;
-using Kai_Engine.GAME.Gameplay;
 using System.Numerics;
 using Raylib_cs;
 using Kai_Engine.ENGINE;
@@ -10,9 +9,6 @@ namespace Kai_Engine.GAME.Management
 {
     internal class EntityManager
     {
-        //Entity Movement
-        public EntityMovement EntityMovement = new EntityMovement();
-
         #region Entity Variables
         //List of all entities in the game
         public List<IEntity> Entities        = new();
@@ -51,11 +47,6 @@ namespace Kai_Engine.GAME.Management
             {
                 kCollider? playerCollider = player.GetComponent<kCollider>();
                 kCollider? wallCollider = wall.GetComponent<kCollider>();
-
-                if (playerCollider != null && wallCollider != null)
-                {
-                    EntityMovement.CheckCollision(playerCollider, wallCollider);
-                }
             }
         }
 
@@ -67,14 +58,9 @@ namespace Kai_Engine.GAME.Management
             }
 
             //DEBUG
-            if (player != null)
-            {
-                kCollider? playerCollider = player.GetComponent<kCollider>();
-                playerCollider.DrawBounds(player.Transform);
-                playerCollider.debugColor = Color.White;
-            }
+            DebugDraw();
         }
-
+        
         public void SpawnPlayer(Vector2 spawnPoint)
         {
             GameObject _player = new GameObject(_playerSprite, spawnPoint, "Player");
@@ -87,7 +73,7 @@ namespace Kai_Engine.GAME.Management
             kCollider playerCollider = new kCollider();    //initialize Collider component
             kTransform playerTransform = player.Transform;
 
-            playerCollider.SetBounds(playerTransform);     //Set the bounds of the collider
+            playerCollider.ColliderSize(playerTransform, new Vector2(16,16));     //Set the bounds of the collider
 
             player.AddComponent(playerHealth);             //add Health component
             player.AddComponent(playerCollider);           //add Player Collider
@@ -138,7 +124,6 @@ namespace Kai_Engine.GAME.Management
             Vector2 currentPos = new Vector2(0, 0);
 
             //Loop through the walk
-            int wallCounter = 0;
             for (int step = 0; step < maxSteps; step++)
             {
                 //choose direction at random
@@ -155,22 +140,22 @@ namespace Kai_Engine.GAME.Management
                     currentPos.X = newX;
                     currentPos.Y = newY;
 
-                    wallCounter++;
-                    GameObject walls = new GameObject(_wallSprite, new Vector2(currentPos.X, currentPos.Y), $"Wall_{wallCounter}");
+                    GameObject walls = new GameObject(_wallSprite, new Vector2(currentPos.X, currentPos.Y), $"Wall_{step}");
 
                     //Components
                     walls.AddComponent(wallCollider);
 
                     kTransform wallTrans = walls.Transform;
-                    wallCollider.SetBounds(wallTrans);
+                    wallCollider.ColliderSize(wallTrans, new Vector2(16,16));
+                    wallCollider.isActive = true;
 
                     walls.AddComponent(wallHealth);
                     walls.AddComponent(wallTag);
 
                     //Add entities and transforms to list.
-                    Entities.Add(walls);
-                    WallObjects.Add(walls);
-                    takenPositions.Add(walls.Transform.position);
+                    Entities.Add(walls);                          //List of IEntities
+                    WallObjects.Add(walls);                       //List of GameObjects
+                    takenPositions.Add(walls.Transform.position); //List of Vector2
                 }
             }
 
@@ -218,6 +203,19 @@ namespace Kai_Engine.GAME.Management
             KaiLogger.Info("Taken Positions: " + takenPositions.Count.ToString(), false);
             KaiLogger.Info("Free Positions: " + freePositions.Count.ToString(), false);
         }
+        #endregion
+
+        #region DEBUG
+
+        void DebugDraw()
+        {
+            if (player != null)
+            {
+                kCollider? playerCollider = player.GetComponent<kCollider>();
+                playerCollider.DrawBounds(player.Transform, new Vector2 (16,16), Color.White);
+            }
+        }
+
         #endregion
     }
 }

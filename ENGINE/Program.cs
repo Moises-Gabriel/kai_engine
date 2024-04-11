@@ -14,6 +14,8 @@ namespace Kai_Engine.ENGINE
         internal static int MapWidth = 960;
         internal static int MapHeight = 540;
 
+        private const bool _editable = true;
+
         static void Main()
         {
             EntityManager entityManager = new();
@@ -25,11 +27,13 @@ namespace Kai_Engine.ENGINE
 
             //------Initialize------
             Raylib.InitWindow(MapWidth, MapHeight, _engineName);
-            kaiEditor.Init();
+            if (_editable)
+                kaiEditor.Init();
 
             //------Start------
             entityManager.Start();
-            kaiEditor.Start(entityManager);
+            if (_editable)
+                kaiEditor.Start(entityManager);
 
             //Main Game Loop
             while (!Raylib.WindowShouldClose())
@@ -37,14 +41,16 @@ namespace Kai_Engine.ENGINE
 
                 //------Update------
                 entityManager.Update();
-                kaiEditor.Update(entityManager);
+                if (_editable)
+                    kaiEditor.Update(entityManager);
 
                 //-------Draw------
                 Raylib.BeginDrawing();
                 Raylib.ClearBackground(Color.Black);
 
                 entityManager.Draw();
-                kaiEditor.Draw();
+                if (_editable)
+                    kaiEditor.Draw(entityManager);
 
                 Raylib.EndDrawing();
             }

@@ -29,6 +29,7 @@ namespace Kai_Engine.ENGINE.Entities
 
         public void AddComponent(IComponent component)
         {
+            component.SetParentObject(this);
             Components.Add(component);
         }
 
