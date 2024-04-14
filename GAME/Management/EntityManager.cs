@@ -1,16 +1,24 @@
-﻿using Kai_Engine.ENGINE;
-using Kai_Engine.ENGINE.Components;
+﻿using Kai_Engine.ENGINE.Components;
 using Kai_Engine.ENGINE.Entities;
 using Kai_Engine.ENGINE.Utils;
-using Raylib_cs;
+using Kai_Engine.ENGINE;
 using System.Numerics;
+using Raylib_cs;
 
 namespace Kai_Engine.GAME.Management
 {
     internal class EntityManager
     {
+        ///######################################################################
+        ///                     //TODO: IN ENTITY MANAGER
+        ///                           
+        ///   - Implement a layer system so that the different entities/objects
+        ///     are rendered on different layers? [done]
+        /// 
+        ///######################################################################
+
         #region Entity Variables
-        //List of all entities in the game
+        //List of all entities/GameObjects in the game
         public List<IEntity> Entities = new();
         public List<GameObject> AllObjects = new();
 
@@ -33,8 +41,8 @@ namespace Kai_Engine.GAME.Management
         public void Start()
         {
             //Initialize entity sprites
-            _floorSprite = Raylib.LoadTexture(_floorSpritePath);
-            _wallSprite = Raylib.LoadTexture(_wallSpritePath);
+            _floorSprite  = Raylib.LoadTexture(_floorSpritePath);
+            _wallSprite   = Raylib.LoadTexture(_wallSpritePath);
             _playerSprite = Raylib.LoadTexture(_playerSpritePath);
 
             //Create level
@@ -53,18 +61,17 @@ namespace Kai_Engine.GAME.Management
 
         public void Draw()
         {
-            foreach (var entity in Entities)
+            //Draw based on position in Layer enum
+            var sortedEntities = Entities.OrderBy(e => ((GameObject)e).Layer).ToList();
+            foreach (var entity in sortedEntities)
             {
                 entity.Draw();
             }
-
-            //DEBUG
-            //DebugDraw();
         }
 
         public void SpawnPlayer(Vector2 spawnPoint)
         {
-            GameObject _player = new GameObject(_playerSprite, spawnPoint, "Player");
+            GameObject _player = new GameObject(_playerSprite, spawnPoint, Layer.Player, "Player");
             player = _player;
 
             //Add Components
@@ -89,11 +96,6 @@ namespace Kai_Engine.GAME.Management
             //Higher steps = denser wall placement
             DrunkardsWalk(5000);
         }
-
-        /// <summary>
-        /// Utilizes the Drunkard's Walk algorithm to create a nice cave system.
-        /// The caves are generally cavernous with few smaller rooms. 
-        /// </summary>
 
         #region Drunkard's Walk
         //List of Taken positions
@@ -146,7 +148,7 @@ namespace Kai_Engine.GAME.Management
                     counter++;
                     if (!takenPositions.Contains(currentPos))
                     {
-                        GameObject walls = new GameObject(_wallSprite, new Vector2(currentPos.X, currentPos.Y), $"Wall_{counter}");
+                        GameObject walls = new GameObject(_wallSprite, new Vector2(currentPos.X, currentPos.Y), Layer.Wall, $"Wall_{counter}");
 
                         //Components
                         walls.AddComponent(wallCollider);
@@ -193,7 +195,7 @@ namespace Kai_Engine.GAME.Management
             foreach (Vector2 pos in freePositions)
             {
                 floorCounter++;
-                GameObject floor = new GameObject(_floorSprite, pos, $"Floor_{floorCounter}");
+                GameObject floor = new GameObject(_floorSprite, pos, Layer.Floor, $"Floor_{floorCounter}");
                 Entities.Add(floor);
             }
 
@@ -214,7 +216,7 @@ namespace Kai_Engine.GAME.Management
         #endregion
 
         #region DEBUG
-
+        //Draws box around player's position
         void DebugDraw()
         {
             if (player != null)

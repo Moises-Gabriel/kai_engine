@@ -6,8 +6,18 @@ namespace Kai_Engine.ENGINE.Entities
 {
     public interface IEntity { void Draw(); }
 
+    //NOTE: Layer hierarchy goes from bottom to top
+    public enum Layer
+    {
+        Floor,
+        Wall,
+        Player,
+        UI
+    }
+
     public class GameObject : IEntity
     {
+
         //Components List
         public List<IComponent> Components { get; } = new List<IComponent>();
 
@@ -15,12 +25,15 @@ namespace Kai_Engine.ENGINE.Entities
         public kName      Name      { get; set; }
         public kTransform Transform { get; set; }
         public kSprite    Sprite    { get; set; }
+        public Layer      Layer     { get; set; }
 
-        public GameObject(Texture2D sprite, Vector2 position, string name)
+
+        public GameObject(Texture2D sprite, Vector2 position, Layer layer, string name)
         {
             Name      = new kName      { name = name };
             Transform = new kTransform { position = position, size = new Vector2(16, 16) };
             Sprite    = new kSprite    { sprite = sprite };
+            Layer     = layer;
 
             //Add default components to component list so they can be accessed through GetComponent
             Components.Add(Transform);

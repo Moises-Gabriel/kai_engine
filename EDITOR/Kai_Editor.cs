@@ -6,7 +6,6 @@ using System.Numerics;
 using rlImGui_cs;
 using Raylib_cs;
 using ImGuiNET;
-using System.Xml.Serialization;
 
 namespace Kai_Engine.EDITOR
 {
@@ -26,12 +25,12 @@ namespace Kai_Engine.EDITOR
         private GameObject? _selectedGameObject;
 
 
-        ///######################################################################
-        ///                           TODO:
-        ///     - Have selection box stay on object when object is moved
-        ///     - Keep reorganizing/optimizing editor code
+        ///########################################################################
+        ///                        //TODO: KAI EDITOR
+        ///   - Have selection box stay on object when object is moved [pending]
+        ///   - Keep reorganizing/optimizing editor code [done]
         /// 
-        ///######################################################################
+        ///########################################################################
 
         public void Init()
         {
@@ -41,11 +40,11 @@ namespace Kai_Engine.EDITOR
 
         public void Start(EntityManager eManager)
         {
-            KaiLogger.Info("Walls in scene: " + eManager.WallObjects.Count.ToString(), false);
+            KaiLogger.Important("Kai Editor: Ready", true);
         }
 
         public void Update(EntityManager eManager)
-        {
+        {   
             DetectMouse(eManager);
         }
 
@@ -53,7 +52,7 @@ namespace Kai_Engine.EDITOR
         {
             DrawMouseCollider();
             DrawObjectColliders(eManager);
-            DrawSelected(new Vector2 (_selectedObjectTransform.X, _selectedObjectTransform.Y), new Vector2(_selectedObjectTransform.Z, _selectedObjectTransform.W));
+            DrawSelectionBox(new Vector2 (_selectedObjectTransform.X, _selectedObjectTransform.Y), new Vector2(_selectedObjectTransform.Z, _selectedObjectTransform.W));
 
             GameObject player = eManager.player;
 
@@ -68,7 +67,7 @@ namespace Kai_Engine.EDITOR
                 ///######################################################################
                 ImGui.Checkbox("Select GameObjects", ref _selectObject);
                 SeparatedSpacer();
-                ImGui.Checkbox("Show Collision", ref _showCollision);
+                ImGui.Checkbox("Show Colliders", ref _showCollision);
                 SeparatedSpacer();
                 ///######################################################################
                 ///                             Player
@@ -111,6 +110,7 @@ namespace Kai_Engine.EDITOR
             #endregion
         }
 
+        //Determines if mouse button has been clicked (extra layer)
         bool clicked = false;
         public void DetectMouse(EntityManager eManager)
         {
@@ -137,13 +137,16 @@ namespace Kai_Engine.EDITOR
                     {
                         clicked = true;
 
+                        //TODO: Figure out where to put this so that the outline moves with the object
                         //for outline drawing
                         _selectedObjectTransform = Selected(gameObject.Transform.position, gameObject.Transform.size);
-                        
+
                         _selectedGameObject = gameObject;
                     }
                     else if (Raylib.IsMouseButtonReleased(0) && clicked)
+                    {
                         clicked = false;
+                    }
 
                     _mouseColor = Color.Red;
                 }
@@ -154,6 +157,12 @@ namespace Kai_Engine.EDITOR
         {
             if (_showCollision)
             {
+                if (eManager.player != null)
+                {
+                    kCollider? playerCollider = eManager.player.GetComponent<kCollider>();
+                    playerCollider.DrawBounds(eManager.player.Transform, new Vector2(16, 16), Color.Green);
+                }
+
                 foreach (var wall in eManager.WallObjects)
                 {
                     //Display collision box for each wall
@@ -171,13 +180,10 @@ namespace Kai_Engine.EDITOR
             }
             _mouseColor = Color.White;
         }
-        private void DrawSelected(Vector2 selectedObjectPosition, Vector2 selectedObjectSize)
+        private void DrawSelectionBox(Vector2 selectedObjectPosition, Vector2 selectedObjectSize)
         {
-            if (_selectObject)
-            {
-                Raylib.DrawRectangleLinesEx(new Rectangle((int)selectedObjectPosition.X, (int)selectedObjectPosition.Y,
-                                                          (int)selectedObjectSize.X, (int)selectedObjectSize.Y), 1, Color.White);
-            }
+            Raylib.DrawRectangleLinesEx(new Rectangle((int)selectedObjectPosition.X, (int)selectedObjectPosition.Y,
+                                                      (int)selectedObjectSize.X, (int)selectedObjectSize.Y), 1, Color.White);
         }
         private void SeparatedSpacer()
         {
