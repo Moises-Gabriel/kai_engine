@@ -24,9 +24,12 @@ namespace Kai_Engine.EDITOR
 
         private GameObject? _selectedGameObject;
 
+        internal GameObject? player;
+
 
         ///########################################################################
         ///                        //TODO: KAI EDITOR
+        ///                        
         ///   - Have selection box stay on object when object is moved [pending]
         ///   - Keep reorganizing/optimizing editor code [done]
         /// 
@@ -40,6 +43,7 @@ namespace Kai_Engine.EDITOR
 
         public void Start(EntityManager eManager)
         {
+            player = eManager.player;
             KaiLogger.Important("Kai Editor: Ready", true);
         }
 
@@ -53,8 +57,6 @@ namespace Kai_Engine.EDITOR
             DrawMouseCollider();
             DrawObjectColliders(eManager);
             DrawSelectionBox(new Vector2 (_selectedObjectTransform.X, _selectedObjectTransform.Y), new Vector2(_selectedObjectTransform.Z, _selectedObjectTransform.W));
-
-            GameObject player = eManager.player;
 
             #region IMGUI
             rlImGui.Begin();
@@ -80,11 +82,12 @@ namespace Kai_Engine.EDITOR
                         ImGui.PushItemWidth(50); //Set input field size
 
                         ImGui.Text("Position");
-                        ImGui.DragFloat("X", ref player.Transform.position.X);
-                        ImGui.DragFloat("Y", ref player.Transform.position.Y);
+                        ImGui.DragFloat("X", ref player.Transform.position.X, 17);
+                        ImGui.DragFloat("Y", ref player.Transform.position.Y, 17);
 
                         ImGui.TreePop();
                     }
+                    ImGui.Text($"Health: {player.GetComponent<kHealth>().health}");
                 }
                 ///######################################################################
                 ///                        Selected Object
@@ -97,10 +100,14 @@ namespace Kai_Engine.EDITOR
                         ImGui.PushItemWidth(50); //Set input field size
 
                         ImGui.Text("Position");
-                        ImGui.DragFloat("X", ref _selectedGameObject.Transform.position.X);
-                        ImGui.DragFloat("Y", ref _selectedGameObject.Transform.position.Y);
+                        ImGui.DragFloat("X", ref _selectedGameObject.Transform.position.X, 17);
+                        ImGui.DragFloat("Y", ref _selectedGameObject.Transform.position.Y, 17);
 
                         ImGui.TreePop();
+                    }
+                    if (_selectedGameObject.GetComponent<kHealth>() != null)
+                    {
+                        ImGui.Text($"Health: {_selectedGameObject.GetComponent<kHealth>().health}");
                     }
                 }
             }
@@ -109,46 +116,48 @@ namespace Kai_Engine.EDITOR
             rlImGui.End();
             #endregion
         }
-
-        //Determines if mouse button has been clicked (extra layer)
-        bool clicked = false;
+        
+        bool clicked = false; //Determines if mouse button has been clicked (extra layer)
         public void DetectMouse(EntityManager eManager)
         {
             foreach (var gameObject in eManager.AllObjects)
             {
-                //Grab wall's components
-                kTransform objectTransform = gameObject.GetComponent<kTransform>();
-                kCollider objectCollider   = gameObject.GetComponent<kCollider>();
-
-                //Determine wall's collider size
-                Vector4 otherCol = objectCollider.ColliderSize(objectTransform, _colliderSize);
-
-                //AABB collision check between Mouse Position and Wall's collider
-                bool colliding = (int)GetMousePosition().X <= otherCol.X + otherCol.Z && (int)GetMousePosition().Z + (int)GetMousePosition().X >= otherCol.X
-                              && (int)GetMousePosition().Y <= otherCol.Y + otherCol.W && (int)GetMousePosition().Y + (int)GetMousePosition().W >= otherCol.Y;
-
-                //Set each wall's collision boolean to the results of 'colliding'
-                objectCollider.isColliding = colliding;
-
-                if (_selectObject && objectCollider.isColliding)
+                if (gameObject.IsActive)
                 {
-                    //Do collision logic here
-                    if (Raylib.IsMouseButtonPressed(0) && !clicked)
+                    //Grab wall's components
+                    kTransform objectTransform = gameObject.GetComponent<kTransform>();
+                    kCollider objectCollider   = gameObject.GetComponent<kCollider>();
+
+                    //Determine wall's collider size
+                    Vector4 otherCol = objectCollider.ColliderSize(objectTransform, _colliderSize);
+
+                    //AABB collision check between Mouse Position and Wall's collider
+                    bool colliding = (int)GetMousePosition().X <= otherCol.X + otherCol.Z && (int)GetMousePosition().Z + (int)GetMousePosition().X >= otherCol.X
+                                  && (int)GetMousePosition().Y <= otherCol.Y + otherCol.W && (int)GetMousePosition().Y + (int)GetMousePosition().W >= otherCol.Y;
+
+                    //Set each wall's collision boolean to the results of 'colliding'
+                    objectCollider.isColliding = colliding;
+
+                    if (_selectObject && objectCollider.isColliding)
                     {
-                        clicked = true;
+                        //Do collision logic here
+                        if (Raylib.IsMouseButtonPressed(0) && !clicked)
+                        {
+                            clicked = true;
 
-                        //TODO: Figure out where to put this so that the outline moves with the object
-                        //for outline drawing
-                        _selectedObjectTransform = Selected(gameObject.Transform.position, gameObject.Transform.size);
+                            //TODO: Figure out where to put this so that the outline updates with the object
+                            //for outline drawing
+                            _selectedObjectTransform = Selected(gameObject.Transform.position, gameObject.Transform.size);
 
-                        _selectedGameObject = gameObject;
+                            _selectedGameObject = gameObject;
+                        }
+                        else if (Raylib.IsMouseButtonReleased(0) && clicked)
+                        {
+                            clicked = false;
+                        }
+
+                        _mouseColor = Color.Red;
                     }
-                    else if (Raylib.IsMouseButtonReleased(0) && clicked)
-                    {
-                        clicked = false;
-                    }
-
-                    _mouseColor = Color.Red;
                 }
             }
         }
@@ -160,14 +169,38 @@ namespace Kai_Engine.EDITOR
                 if (eManager.player != null)
                 {
                     kCollider? playerCollider = eManager.player.GetComponent<kCollider>();
-                    playerCollider.DrawBounds(eManager.player.Transform, new Vector2(16, 16), Color.Green);
+
+                    if (playerCollider.isColliding)
+                    {
+                        playerCollider.DrawBounds(eManager.player.Transform, new Vector2(16, 16), Color.Red);
+                        Raylib.DrawRectangle((int)eManager.player.Transform.position.X, (int)eManager.player.Transform.position.Y, 
+                                             (int)eManager.player.Transform.size.X, (int)eManager.player.Transform.size.Y, Color.Red);
+                    }
+                    else
+                    {
+                        playerCollider.DrawBounds(eManager.player.Transform, new Vector2(16, 16), Color.Green);
+                        Raylib.DrawRectangle((int)eManager.player.Transform.position.X, (int)eManager.player.Transform.position.Y,
+                                             (int)eManager.player.Transform.size.X, (int)eManager.player.Transform.size.Y, Color.Green);
+                    }
                 }
 
                 foreach (var wall in eManager.WallObjects)
                 {
                     //Display collision box for each wall
-                    wall.GetComponent<kCollider>().DrawBounds(wall.GetComponent<kTransform>(), new Vector2(16, 16), Color.Green);
+                    if (wall.IsActive)
+                    {
+                        wall.GetComponent<kCollider>().DrawBounds(wall.GetComponent<kTransform>(), new Vector2(16, 16), Color.Green);
+                    }
 
+                }
+
+                foreach (var item in eManager.ItemObjects)
+                {
+                    if (item.IsActive)
+                    {
+                        //Display collision box for each wall
+                        item.GetComponent<kCollider>().DrawBounds(item.GetComponent<kTransform>(), new Vector2(16, 16), Color.Green);
+                    }
                 }
             }
         }
