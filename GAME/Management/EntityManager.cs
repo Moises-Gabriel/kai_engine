@@ -1,17 +1,17 @@
-﻿using Kai_Engine.ENGINE.Components;
+﻿using Kai_Engine.ENGINE;
+using Kai_Engine.ENGINE.Components;
 using Kai_Engine.ENGINE.Entities;
-using Kai_Engine.GAME.Gameplay;
 using Kai_Engine.ENGINE.Utils;
-using Kai_Engine.ENGINE;
-using System.Numerics;
+using Kai_Engine.GAME.Gameplay;
 using Raylib_cs;
+using System.Numerics;
 
 namespace Kai_Engine.GAME.Management
 {
     internal class EntityManager
     {
         ///######################################################################
-        ///                     //TODO: IN ENTITY MANAGER
+        ///                     TODO: IN ENTITY MANAGER
         ///                           
         ///   - Nothing for now; Great job!
         /// 
@@ -24,39 +24,48 @@ namespace Kai_Engine.GAME.Management
 
         //Item Entity                         
         public List<GameObject> ItemObjects = new();
-        private string _itemSpritePath = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\item_sprite.png";
+        private readonly string _itemSpritePath = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\item_sprite.png";
         private Texture2D _itemSprite = new();
 
         //Wall Entity                         
         public List<GameObject> WallObjects = new();
-        private string _wallSpritePath = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\wall_sprite.png";
+        private readonly string _wallSpritePath = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\wall_sprite.png";
         private Texture2D _wallSprite = new();
 
         //Floor Entity                        
-        private string _floorSpritePath = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\floor_sprite.png";
+        private readonly string _floorSpritePath = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\floor_sprite.png";
         private Texture2D _floorSprite = new();
 
         //Player Entity                       
         public GameObject? player;
-        private string _playerSpritePath = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\player_sprite.png";
+        private readonly string _playerSpritePath = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\player_sprite.png";
         private Texture2D _playerSprite = new();
         public bool PlayerCreated = false;
+
+        //Camera
+        public Camera? Camera;
+        public bool Clamped = true;
         #endregion
 
-        private EntityMovement _eMovement;
+        //Gameplay
+        private EntityMovement? _eMovement;
 
         public void Start()
         {
             //Initialize entity sprites
-            _itemSprite   = Raylib.LoadTexture(_itemSpritePath);
-            _floorSprite  = Raylib.LoadTexture(_floorSpritePath);
-            _wallSprite   = Raylib.LoadTexture(_wallSpritePath);
+            _itemSprite = Raylib.LoadTexture(_itemSpritePath);
+            _floorSprite = Raylib.LoadTexture(_floorSpritePath);
+            _wallSprite = Raylib.LoadTexture(_wallSpritePath);
             _playerSprite = Raylib.LoadTexture(_playerSpritePath);
 
             _eMovement = new EntityMovement();
 
             //Create level
             GenerateLevel();
+
+            //Initialize Camera
+            Camera = new Camera();
+            Camera.Zoom = 1f;
         }
 
         public void Update()
@@ -65,8 +74,14 @@ namespace Kai_Engine.GAME.Management
 
             _eMovement.MovePlayer(this);
             _eMovement.CheckDirection(player);
-            
+
             _eMovement.CheckCollision(this, player);
+
+            Camera.Update(player);
+            if (Clamped)
+            {
+                Camera.Clamp(Vector2.Zero, new Vector2(Program.MapWidth, Program.MapHeight)); //Clamps to viewport
+            }
         }
 
         public void Draw()
@@ -75,20 +90,20 @@ namespace Kai_Engine.GAME.Management
             var sortedEntities = Entities.OrderBy(e => ((GameObject)e).Layer).ToList();
             foreach (var entity in sortedEntities)
             {
-                entity.Draw();
+                entity.Draw(Camera);
             }
         }
 
         public void AddPlayer(Vector2 spawnPoint)
         {
-            GameObject _player = new GameObject(_playerSprite, spawnPoint, Layer.Player, "Player", true);
+            GameObject _player = new(_playerSprite, spawnPoint, Layer.Player, "Player", true);
             player = _player;
 
             //Add Components
-            kHealth playerHealth = new kHealth();          //initialize Health component
+            kHealth playerHealth = new();          //initialize Health component
             playerHealth.health = 50;                      //set the health                        
 
-            kCollider playerCollider = new kCollider();    //initialize Collider component
+            kCollider playerCollider = new();    //initialize Collider component
             kTransform playerTransform = player.Transform;
 
             playerCollider.ColliderSize(playerTransform, playerTransform.size);     //Set the bounds of the collider
@@ -102,15 +117,19 @@ namespace Kai_Engine.GAME.Management
 
         public void AddItem(Vector2 spawnPoint)
         {
-            GameObject item = new GameObject(_itemSprite, spawnPoint, Layer.Item, "Item", true);
-            
+            GameObject item = new(_itemSprite, spawnPoint, Layer.Item, "Item", true);
+
             //Add components
-            kCollider itemCollider = new kCollider();
+            kCollider itemCollider = new();
             kTransform itemTransform = item.Transform;
+
+            kHealth itemHealth = new();          //initialize Health component
+            itemHealth.health = 10;                      //set the health
 
             itemCollider.ColliderSize(itemTransform, itemTransform.size);
 
             item.AddComponent(itemCollider);
+            item.AddComponent(itemHealth);
 
             Entities.Add(item);
             AllObjects.Add(item);
@@ -126,10 +145,10 @@ namespace Kai_Engine.GAME.Management
 
         #region Drunkard's Walk
         //List of Taken positions
-        private List<Vector2> takenPositions = new List<Vector2>();
+        private readonly List<Vector2> takenPositions = new();
 
         //List of Free positions
-        private List<Vector2> freePositions = new List<Vector2>();
+        private readonly List<Vector2> freePositions = new();
 
         void DrunkardsWalk(int maxSteps)
         {
@@ -144,14 +163,14 @@ namespace Kai_Engine.GAME.Management
                 for (int y = 0; y < Program.MapHeight; y += (tileSize + 1))
                 {
                     floorCounter++;
-                    GameObject floor = new GameObject(_floorSprite, new Vector2 (x,y), Layer.Floor, $"Floor_{floorCounter}", true);
+                    GameObject floor = new GameObject(_floorSprite, new Vector2(x, y), Layer.Floor, $"Floor_{floorCounter}", true);
                     Entities.Add(floor);
                 }
             }
-            
+
             KaiLogger.Info($"Starting Walk", false);
 
-            
+
 
             /* --- Drunkard's Walk Algorithm --- */
 
@@ -198,7 +217,7 @@ namespace Kai_Engine.GAME.Management
 
                         kTransform wallTrans = walls.Transform;
                         wallCollider.ColliderSize(wallTrans, new Vector2(16, 16));
-                        wallCollider.isActive = true;
+                        wallCollider.IsActive = true;
 
                         walls.AddComponent(wallHealth);
                         walls.AddComponent(wallTag);
@@ -233,7 +252,7 @@ namespace Kai_Engine.GAME.Management
                 }
             }
 
-            
+
 
             //Spawn player at a free location
             Vector2 playerSpawnPoint = freePositions[random.Next(0, freePositions.Count)];

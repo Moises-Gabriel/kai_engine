@@ -1,7 +1,6 @@
-﻿using Raylib_cs;
+﻿using Kai_Engine.ENGINE.Entities;
+using Raylib_cs;
 using System.Numerics;
-using Kai_Engine.ENGINE.Utils;
-using Kai_Engine.ENGINE.Entities;
 
 namespace Kai_Engine.ENGINE.Components
 {
@@ -83,9 +82,11 @@ namespace Kai_Engine.ENGINE.Components
     public class kCollider : IComponent
     {
         //Determine if collider is active
-        public bool isActive        = false;
+        public bool IsActive = false;
         //Individual collision boolean
-        public bool isColliding     = false;
+        public bool IsColliding = false;
+        //Determine if collision has finished processing
+        public bool FinishedProcessing = false;
 
         //Set collider size to object size
         public Vector4 ColliderSize(kTransform transform, Vector2 size)
@@ -107,7 +108,7 @@ namespace Kai_Engine.ENGINE.Components
         #region DEBUG
         public void DrawBounds(kTransform transform, Vector2 size, Color debugColor)
         {
-            Raylib.DrawRectangleLines((int)ColliderSize(transform, size).X, (int)ColliderSize(transform, size).Y, 
+            Raylib.DrawRectangleLines((int)ColliderSize(transform, size).X, (int)ColliderSize(transform, size).Y,
                                       (int)ColliderSize(transform, size).Z, (int)ColliderSize(transform, size).W, debugColor);
         }
         #endregion

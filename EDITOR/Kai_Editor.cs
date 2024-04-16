@@ -1,37 +1,37 @@
-﻿using Kai_Engine.ENGINE.Components;
-using Kai_Engine.GAME.Management;
+﻿using ImGuiNET;
+using Kai_Engine.ENGINE.Components;
 using Kai_Engine.ENGINE.Entities;
 using Kai_Engine.ENGINE.Utils;
-using System.Numerics;
-using rlImGui_cs;
+using Kai_Engine.GAME.Management;
 using Raylib_cs;
-using ImGuiNET;
+using rlImGui_cs;
+using System.Numerics;
 
 namespace Kai_Engine.EDITOR
 {
     internal class Kai_Editor
     {
         private readonly int _mouseBoundSize = 10;
-        private readonly int _mouseOffset    = 4;
+        private readonly int _mouseOffset = 4;
 
-        private bool _showCollision = false;    
-        private bool _selectObject  = false;
+        private bool _showCollision = false;
+        private bool _selectObject = false;
 
         private Color _mouseColor = Color.White;
 
-        private Vector4 _selectedObjectTransform = new ();
-        private Vector2 _colliderSize            = new (16,16);
+        private Vector4 _selectedObjectTransform = new();
+        private Vector2 _colliderSize = new(16, 16);
 
         private GameObject? _selectedGameObject;
 
         internal GameObject? player;
 
-
         ///########################################################################
         ///                        //TODO: KAI EDITOR
         ///                        
-        ///   - Have selection box stay on object when object is moved [pending]
-        ///   - Keep reorganizing/optimizing editor code [done]
+        ///   - Debug doesn't align with camera view, only world view; [pending]
+        ///     - Going to try fixing the camera system first before messing
+        ///       with debug
         /// 
         ///########################################################################
 
@@ -47,28 +47,56 @@ namespace Kai_Engine.EDITOR
             KaiLogger.Important("Kai Editor: Ready", true);
         }
 
+        bool debugOpen = false;
         public void Update(EntityManager eManager)
-        {   
+        {
             DetectMouse(eManager);
+
+            if (Raylib.IsKeyPressed(KeyboardKey.Tab) && !debugOpen)
+            {
+                KaiLogger.Info("Debug Open", false);
+                debugOpen = true;
+            }
+            else if (Raylib.IsKeyPressed(KeyboardKey.Tab) && debugOpen)
+            {
+                KaiLogger.Info("Debug Closed", false);
+                debugOpen = false;
+            }
         }
 
         public void Draw(EntityManager eManager)
         {
             DrawMouseCollider();
             DrawObjectColliders(eManager);
-            DrawSelectionBox(new Vector2 (_selectedObjectTransform.X, _selectedObjectTransform.Y), new Vector2(_selectedObjectTransform.Z, _selectedObjectTransform.W));
+            DrawSelectionBox(new Vector2(_selectedObjectTransform.X, _selectedObjectTransform.Y), new Vector2(_selectedObjectTransform.Z, _selectedObjectTransform.W));
 
-            #region IMGUI
+            if (debugOpen)
+            {
+                DrawGUI(eManager);
+            }
+        }
+
+        private void DrawGUI(EntityManager eManager)
+        {
             rlImGui.Begin();
 
             //Editor Window
             if (ImGui.Begin("Kai Editor"))
             {
                 ///######################################################################
+                ///                             Camera
+                ///######################################################################
+                if (eManager.Camera != null)
+                {
+                    ImGui.SeparatorText("Camera");
+                    ImGui.SliderFloat("Zoom", ref eManager.Camera.Zoom, 0f, 10f);
+                }
+                ImGui.Checkbox("Clamped", ref eManager.Clamped);
+                SeparatedSpacer();
+                ///######################################################################
                 ///                           Check Boxes
                 ///######################################################################
                 ImGui.Checkbox("Select GameObjects", ref _selectObject);
-                SeparatedSpacer();
                 ImGui.Checkbox("Show Colliders", ref _showCollision);
                 SeparatedSpacer();
                 ///######################################################################
@@ -114,9 +142,8 @@ namespace Kai_Engine.EDITOR
 
             ImGui.End();
             rlImGui.End();
-            #endregion
         }
-        
+
         bool clicked = false; //Determines if mouse button has been clicked (extra layer)
         public void DetectMouse(EntityManager eManager)
         {
@@ -126,7 +153,7 @@ namespace Kai_Engine.EDITOR
                 {
                     //Grab wall's components
                     kTransform objectTransform = gameObject.GetComponent<kTransform>();
-                    kCollider objectCollider   = gameObject.GetComponent<kCollider>();
+                    kCollider objectCollider = gameObject.GetComponent<kCollider>();
 
                     //Determine wall's collider size
                     Vector4 otherCol = objectCollider.ColliderSize(objectTransform, _colliderSize);
@@ -136,9 +163,9 @@ namespace Kai_Engine.EDITOR
                                   && (int)GetMousePosition().Y <= otherCol.Y + otherCol.W && (int)GetMousePosition().Y + (int)GetMousePosition().W >= otherCol.Y;
 
                     //Set each wall's collision boolean to the results of 'colliding'
-                    objectCollider.isColliding = colliding;
+                    objectCollider.IsColliding = colliding;
 
-                    if (_selectObject && objectCollider.isColliding)
+                    if (_selectObject && objectCollider.IsColliding)
                     {
                         //Do collision logic here
                         if (Raylib.IsMouseButtonPressed(0) && !clicked)
@@ -170,10 +197,10 @@ namespace Kai_Engine.EDITOR
                 {
                     kCollider? playerCollider = eManager.player.GetComponent<kCollider>();
 
-                    if (playerCollider.isColliding)
+                    if (playerCollider.IsColliding)
                     {
                         playerCollider.DrawBounds(eManager.player.Transform, new Vector2(16, 16), Color.Red);
-                        Raylib.DrawRectangle((int)eManager.player.Transform.position.X, (int)eManager.player.Transform.position.Y, 
+                        Raylib.DrawRectangle((int)eManager.player.Transform.position.X, (int)eManager.player.Transform.position.Y,
                                              (int)eManager.player.Transform.size.X, (int)eManager.player.Transform.size.Y, Color.Red);
                     }
                     else
@@ -226,7 +253,7 @@ namespace Kai_Engine.EDITOR
         }
         private Vector4 Selected(Vector2 selectedObjectPosition, Vector2 selectedObjectSize)
         {
-            return new Vector4 (selectedObjectPosition.X, selectedObjectPosition.Y, selectedObjectSize.X, selectedObjectSize.Y);
+            return new Vector4(selectedObjectPosition.X, selectedObjectPosition.Y, selectedObjectSize.X, selectedObjectSize.Y);
         }
         private Vector4 GetMousePosition()
         {

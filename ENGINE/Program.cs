@@ -30,6 +30,8 @@ namespace Kai_Engine.ENGINE
             if (_editable)
                 kaiEditor.Init();
 
+            Raylib.SetTargetFPS(120);
+
             //------Start------
             entityManager.Start();
             if (_editable)

@@ -1,9 +1,9 @@
 ﻿using Kai_Engine.ENGINE.Components;
 using Kai_Engine.ENGINE.Entities;
-using Kai_Engine.GAME.Management;
 using Kai_Engine.ENGINE.Utils;
-using System.Numerics;
+using Kai_Engine.GAME.Management;
 using Raylib_cs;
+using System.Numerics;
 
 namespace Kai_Engine.GAME.Gameplay
 {
@@ -13,13 +13,13 @@ namespace Kai_Engine.GAME.Gameplay
         ///                     //TODO: IN ENTITY MOVEMENT
         ///                           
         ///   - When colliding with wall, damage is ticked multiple times
-        ///   a second (because it's per frame); not wanted [pending]
+        ///   a second (because it's per frame); not wanted [done]
         ///   
         ///   - Figure out how to actually destroy/remove a wall when its
         ///   health goes all the way down [pending/done]
         /// 
         ///######################################################################
-        
+
         private enum Direction { UP, DOWN, LEFT, RIGHT }
         private Direction? lastDirection = null;
 
@@ -28,20 +28,20 @@ namespace Kai_Engine.GAME.Gameplay
         ///                 PLAYER MOVEMENT
         /// 
         ///#####################################################
-
-        private int _moveDistance = 17; //17 pixels is one unit for the game
+        #region Player Movement
+        private readonly int _moveDistance = 17; //17 pixels is one unit for the game
         public void MovePlayer(EntityManager eManager)
         {
-            GameObject player = eManager.player;
+            GameObject? player = eManager.player;
 
             if (player != null)
             {
-                kTransform playerTransform = player.GetComponent<kTransform>();
-                kCollider playerCollider = player.GetComponent<kCollider>();
+                kTransform? playerTransform = player.GetComponent<kTransform>();
+                kCollider? playerCollider = player.GetComponent<kCollider>();
 
                 KeyboardKey keyPressed = (KeyboardKey)Raylib.GetKeyPressed();
 
-                if (!playerCollider.isColliding)
+                if (!playerCollider.IsColliding)
                 {
                     switch (keyPressed)
                     {
@@ -69,15 +69,15 @@ namespace Kai_Engine.GAME.Gameplay
             }
         }
 
-        private GameObject? otherObject;
+        private GameObject? otherObject; //Object being collided with
 
         //Check which direction we were going when we collided
         public async void CheckDirection(GameObject player)
         {
-            kCollider playerCollider = player.GetComponent<kCollider>();
-            kTransform playerTransform = player.GetComponent<kTransform>();
+            kTransform? playerTransform = player.GetComponent<kTransform>();
+            kCollider? playerCollider = player.GetComponent<kCollider>();
 
-            if (playerCollider.isColliding && lastDirection != null && otherObject != null)
+            if (playerCollider.IsColliding && lastDirection != null && otherObject != null)
             {
                 Vector2 newPosition = playerTransform.position;
                 switch (lastDirection)
@@ -104,20 +104,17 @@ namespace Kai_Engine.GAME.Gameplay
             }
 
             //Reset collision flags
-            playerCollider.isColliding = false;
-            if (otherObject != null)
-            {
-                otherObject.GetComponent<kCollider>().isColliding = false;
-            }
+            playerCollider.IsColliding = false;
             otherObject = null;  //Clear the reference to prevent unintended repeated interaction
         }
 
         //Reset position to before wall
         private async Task Bump(kTransform playerTransform, Vector2 direction)
         {
-            await Task.Delay(75); //milliseconds
+            await Task.Delay(90); //milliseconds
             playerTransform.position = direction;
         }
+        #endregion
 
         ///#####################################################
         ///
@@ -125,22 +122,26 @@ namespace Kai_Engine.GAME.Gameplay
         ///    (could possibly be moved into another class)
         /// 
         ///#####################################################
-       
+
         //Dig at wall and destroy it (when damaged enough)
         private void Dig(GameObject other)
         {
-            kHealth otherHealth = other.GetComponent<kHealth>();
+            kHealth? otherHealth = other.GetComponent<kHealth>();
+            kCollider? otherCollider = other.GetComponent<kCollider>();
 
-            if (otherHealth != null)
+            int damageAmount = 5;
+
+            //Only damage if the collision hasn't been processed yet
+            if (otherHealth != null && otherCollider != null && !otherCollider.FinishedProcessing)
             {
-                otherHealth.health--;
+                otherHealth.health -= damageAmount;
+                otherCollider.FinishedProcessing = true;  //Mark this collision as processed
                 KaiLogger.Info($"{other.Name.name} Health: " + otherHealth.health, false);
 
                 if (otherHealth.health <= 0)
                 {
                     //Destroy wall
                     other.IsActive = false;
-
                     //Additional logic to actually remove the wall from the game
                 }
             }
@@ -154,26 +155,25 @@ namespace Kai_Engine.GAME.Gameplay
 
         public void CheckCollision(EntityManager eManager, GameObject player)
         {
-            kTransform playerTransform = player.GetComponent<kTransform>();
-            kCollider playerCollider = player.GetComponent<kCollider>();
+            kTransform? playerTransform = player.GetComponent<kTransform>();
+            kCollider? playerCollider = player.GetComponent<kCollider>();
+
+            if (playerTransform == null || playerCollider == null) return;
 
             Vector4 playerCol = playerCollider.ColliderSize(playerTransform, playerTransform.size);
-
-            GameObject closestObject = null;  // Track the closest object being collided with
-            float closestDistance = 1.0f;
+            GameObject? closestObject = null;
+            float closestDistance = float.MaxValue;
 
             foreach (var gameObject in eManager.AllObjects)
             {
-                if (gameObject.IsActive)
+                if (gameObject.IsActive && gameObject != player)
                 {
-                    if (gameObject == player) continue; // Skip self-detection
+                    kCollider? objectCollider = gameObject.GetComponent<kCollider>();
+                    kTransform? objectTransform = gameObject.GetComponent<kTransform>();
 
-                    kTransform objectTransform = gameObject.GetComponent<kTransform>();
-                    kCollider objectCollider = gameObject.GetComponent<kCollider>();
+                    if (objectCollider == null || objectTransform == null) continue;
 
                     Vector4 otherCol = objectCollider.ColliderSize(objectTransform, objectTransform.size);
-
-                    // AABB collision check between colliders
                     bool colliding = (int)playerCol.X <= otherCol.X + otherCol.Z && (int)playerCol.Z + (int)playerCol.X >= otherCol.X
                                   && (int)playerCol.Y <= otherCol.Y + otherCol.W && (int)playerCol.Y + (int)playerCol.W >= otherCol.Y;
 
@@ -185,18 +185,22 @@ namespace Kai_Engine.GAME.Gameplay
                             closestDistance = distance;
                             closestObject = gameObject;
                         }
+
+                        if (!objectCollider.FinishedProcessing)
+                        {
+                            objectCollider.IsColliding = true;
+                            playerCollider.IsColliding = true;
+                        }
+                    }
+                    else
+                    {
+                        objectCollider.IsColliding = false;
+                        objectCollider.FinishedProcessing = false;
                     }
                 }
             }
 
-            otherObject = closestObject;  // Assign the closest colliding object
-
-            if (otherObject != null)
-            {
-                otherObject.GetComponent<kCollider>().isColliding = true;
-                playerCollider.isColliding = true;
-            }
-
+            otherObject = closestObject;
         }
     }
 }
