@@ -5,6 +5,7 @@ using Kai_Engine.ENGINE.Utils;
 using Kai_Engine.GAME.Gameplay;
 using Raylib_cs;
 using System.Numerics;
+using System.IO;
 
 namespace Kai_Engine.GAME.Management
 {
@@ -18,27 +19,29 @@ namespace Kai_Engine.GAME.Management
         ///######################################################################
 
         #region Entity Variables
+        private string _basePath = Environment.CurrentDirectory;
+
         //List of all entities/GameObjects in the game
         public List<IEntity> Entities = new();
         public List<GameObject> AllObjects = new();
 
         //Item Entity                         
         public List<GameObject> ItemObjects = new();
-        private readonly string _itemSpritePath = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\item_sprite.png";
+        private string? _itemSpritePath;
         private Texture2D _itemSprite = new();
 
         //Wall Entity                         
         public List<GameObject> WallObjects = new();
-        private readonly string _wallSpritePath = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\wall_sprite.png";
+        private string? _wallSpritePath;
         private Texture2D _wallSprite = new();
 
         //Floor Entity                        
-        private readonly string _floorSpritePath = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\floor_sprite.png";
+        private string? _floorSpritePath;
         private Texture2D _floorSprite = new();
 
         //Player Entity                       
         public GameObject? player;
-        private readonly string _playerSpritePath = @"C:\Dev\CSharp\Kai_Engine_CS\Kai_Engine\GAME\Assets\player_sprite.png";
+        private string? _playerSpritePath;
         private Texture2D _playerSprite = new();
         public bool PlayerCreated = false;
 
@@ -52,6 +55,12 @@ namespace Kai_Engine.GAME.Management
 
         public void Start()
         {
+            //Set sprite paths
+            _itemSpritePath   = Path.Combine(_basePath, @"GAME\Assets\item_sprite.png");
+            _wallSpritePath   = Path.Combine(_basePath, @"GAME\Assets\wall_sprite.png");
+            _floorSpritePath  = Path.Combine(_basePath, @"GAME\Assets\floor_sprite.png");
+            _playerSpritePath = Path.Combine(_basePath, @"GAME\Assets\player_sprite.png");
+
             //Initialize entity sprites
             _itemSprite = Raylib.LoadTexture(_itemSpritePath);
             _floorSprite = Raylib.LoadTexture(_floorSpritePath);
