@@ -47,13 +47,13 @@ namespace Kai_Engine.GAME.Management
 
         //Camera
         public Camera? Camera;
-        public bool Clamped = true;
+        public bool Clamped = false;
         #endregion
 
         //Gameplay
         private EntityMovement? _eMovement;
 
-        public void Start()
+        public void Init()
         {
             //Set sprite paths
             _itemSpritePath   = Path.Combine(_basePath, "GAME/Assets/item_sprite.png");
@@ -62,19 +62,22 @@ namespace Kai_Engine.GAME.Management
             _playerSpritePath = Path.Combine(_basePath, "GAME/Assets/player_sprite.png");
 
             //Initialize entity sprites
-            _itemSprite = Raylib.LoadTexture(_itemSpritePath);
-            _floorSprite = Raylib.LoadTexture(_floorSpritePath);
-            _wallSprite = Raylib.LoadTexture(_wallSpritePath);
+            _itemSprite   = Raylib.LoadTexture(_itemSpritePath);
+            _floorSprite  = Raylib.LoadTexture(_floorSpritePath);
+            _wallSprite   = Raylib.LoadTexture(_wallSpritePath);
             _playerSprite = Raylib.LoadTexture(_playerSpritePath);
+        }
 
+        public void Start()
+        {
+            //Initialize script references
             _eMovement = new EntityMovement();
 
             //Create level
             GenerateLevel();
 
             //Initialize Camera
-            Camera = new Camera();
-            Camera.Zoom = 1f;
+            Camera = new Camera(Program.MapWidth/2,Program.MapHeight/2);
         }
 
         public void Update()
@@ -86,11 +89,12 @@ namespace Kai_Engine.GAME.Management
 
             _eMovement.CheckCollision(this, player);
 
-            Camera.Update(player);
-            if (Clamped)
-            {
-                Camera.Clamp(Vector2.Zero, new Vector2(Program.MapWidth, Program.MapHeight)); //Clamps to viewport
-            }
+            ///######################################################################
+            ///
+            ///                               CAMERA
+            ///                           
+            ///######################################################################
+            Camera.Update(player.Transform.position);
         }
 
         public void Draw()

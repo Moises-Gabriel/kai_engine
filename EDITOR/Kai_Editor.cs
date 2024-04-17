@@ -16,6 +16,7 @@ namespace Kai_Engine.EDITOR
 
         private bool _showCollision = false;
         private bool _selectObject = false;
+        private bool _showViewport = true;
 
         private Color _mouseColor = Color.White;
 
@@ -69,6 +70,7 @@ namespace Kai_Engine.EDITOR
             DrawMouseCollider();
             DrawObjectColliders(eManager);
             DrawSelectionBox(new Vector2(_selectedObjectTransform.X, _selectedObjectTransform.Y), new Vector2(_selectedObjectTransform.Z, _selectedObjectTransform.W));
+            DrawCameraViewport(eManager);
 
             if (debugOpen)
             {
@@ -89,9 +91,8 @@ namespace Kai_Engine.EDITOR
                 if (eManager.Camera != null)
                 {
                     ImGui.SeparatorText("Camera");
-                    ImGui.SliderFloat("Zoom", ref eManager.Camera.Zoom, 0f, 10f);
+                    ImGui.Checkbox("Show Viewport", ref _showViewport);
                 }
-                ImGui.Checkbox("Clamped", ref eManager.Clamped);
                 SeparatedSpacer();
                 ///######################################################################
                 ///                           Check Boxes
@@ -244,6 +245,32 @@ namespace Kai_Engine.EDITOR
         {
             Raylib.DrawRectangleLinesEx(new Rectangle((int)selectedObjectPosition.X, (int)selectedObjectPosition.Y,
                                                       (int)selectedObjectSize.X, (int)selectedObjectSize.Y), 1, Color.White);
+        }
+
+        private void DrawCameraViewport(EntityManager eManager)
+        {
+            //Camera dimensions
+            Vector2 cameraPosition = new Vector2((int)eManager.Camera.Position.X, (int)eManager.Camera.Position.Y);
+            Vector2 cameraSize = new Vector2((int)eManager.Camera.Viewport.Width, (int)eManager.Camera.Viewport.Height);
+
+            //Camera rectangle
+            Rectangle camera = new Rectangle(cameraPosition.X, cameraPosition.Y, cameraSize.X, cameraSize.Y);
+
+            //Deadzone dimensions
+            Vector2 deadZonePosition = new Vector2((int)eManager.Camera.DeadZone.X, (int)eManager.Camera.DeadZone.Y);
+            Vector2 deadZoneSize = new Vector2((int)eManager.Camera.DeadZone.Width, (int)eManager.Camera.DeadZone.Height);
+
+            //Deadzone rectangle
+            Rectangle deadZone = new Rectangle(deadZonePosition.X, deadZonePosition.Y, deadZoneSize.X, deadZoneSize.Y);
+
+            if (_showViewport)
+            {
+                //Total viewport
+                Raylib.DrawRectangleLinesEx(camera, 2, Color.Red);
+
+                //Deadzone
+                Raylib.DrawRectangleLinesEx(deadZone, 2, Color.Green);
+            }
         }
         private void SeparatedSpacer()
         {

@@ -71,32 +71,49 @@ namespace Kai_Engine.ENGINE.Entities
 
     public class Camera
     {
-        public Vector2 Position;
-        public float Zoom;
+        public Vector2 Position { get; private set; }
+        public Rectangle Viewport { get; private set; } // The camera's viewport dimensions.
+        public Rectangle DeadZone { get; private set; } //Camera deadzone dimensions
+        public float SmoothTime { get; set; } = 0.2f; // Smoothing factor.
 
-        public Camera() 
+        public Camera(int viewportWidth, int viewportHeight)
         {
-            Zoom = 1f; //default camera zoom
+            Viewport = new Rectangle(0, 0, viewportWidth, viewportHeight);
+            DeadZone = new Rectangle(0, 0, Viewport.Width * 0.5f, Viewport.Height * 0.5f);
         }
 
-        public void Update(GameObject target)
+        public void Update(Vector2 playerPosition)
         {
-            float viewWidth = Program.MapWidth / 2;
-            float viewHeight = Program.MapHeight / 2;
-
-            Position = new Vector2(
-                target.Transform.position.X - viewWidth * Zoom,
-                target.Transform.position.Y - viewHeight * Zoom
-            );
+            FollowPlayer(playerPosition);
         }
 
-        public void Clamp(Vector2 min, Vector2 max)
+        private void FollowPlayer(Vector2 playerPosition)
         {
-            Position = new Vector2(
-                Math.Clamp(Position.X, min.X, max.X - Program.MapWidth),
-                Math.Clamp(Position.Y, min.Y, max.Y - Program.MapHeight)
-            );
+            // Calculate the center of the viewport
+            Vector2 viewCenter = new Vector2(playerPosition.X + Viewport.Width * 0.5f, playerPosition.Y + Viewport.Height * 0.5f);
+            Vector2 difference = playerPosition - viewCenter;
+
+            //Calculate position of DeadZone
+            DeadZone = new Rectangle(viewCenter.X / 2, viewCenter.Y / 2, DeadZone.Width, DeadZone.Height);
+
+            // Only move camera if the player is outside the deadzone
+            // if (Math.Abs(difference.X) > DeadZone.Width || Math.Abs(difference.Y) > DeadZone.Height)
+            // {
+            //     // Calculate the new target position for the camera
+            //     Vector2 targetPosition = Position;
+
+            //     if (Math.Abs(difference.X) > DeadZone.Width)
+            //         targetPosition.X = playerPosition.X - Viewport.Width / 2;
+
+            //     if (Math.Abs(difference.Y) > DeadZone.Height)
+            //         targetPosition.Y = playerPosition.Y - Viewport.Height / 2;
+
+            //     // Interpolate between the current position and the target position
+            //     float smoothSpeed = 0.1f; // Smoothing speed, adjust as necessary
+            //     Position = Vector2.Lerp(Position, targetPosition, smoothSpeed);
+            // }
         }
+
     }
 }
 
