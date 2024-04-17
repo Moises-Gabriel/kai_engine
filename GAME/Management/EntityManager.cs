@@ -56,10 +56,10 @@ namespace Kai_Engine.GAME.Management
         public void Start()
         {
             //Set sprite paths
-            _itemSpritePath   = Path.Combine(_basePath, @"GAME\Assets\item_sprite.png");
-            _wallSpritePath   = Path.Combine(_basePath, @"GAME\Assets\wall_sprite.png");
-            _floorSpritePath  = Path.Combine(_basePath, @"GAME\Assets\floor_sprite.png");
-            _playerSpritePath = Path.Combine(_basePath, @"GAME\Assets\player_sprite.png");
+            _itemSpritePath   = Path.Combine(_basePath, "GAME/Assets/item_sprite.png");
+            _wallSpritePath   = Path.Combine(_basePath, "GAME/Assets/wall_sprite.png");
+            _floorSpritePath  = Path.Combine(_basePath, "GAME/Assets/floor_sprite.png");
+            _playerSpritePath = Path.Combine(_basePath, "GAME/Assets/player_sprite.png");
 
             //Initialize entity sprites
             _itemSprite = Raylib.LoadTexture(_itemSpritePath);
