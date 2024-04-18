@@ -28,7 +28,7 @@ namespace Kai_Engine.EDITOR
         internal GameObject? player;
 
         ///########################################################################
-        ///                        //TODO: KAI EDITOR
+        ///                        TODO: KAI EDITOR
         ///                        
         ///   - Debug doesn't align with camera view, only world view; [pending]
         ///     - Going to try fixing the camera system first before messing
@@ -103,21 +103,27 @@ namespace Kai_Engine.EDITOR
                 ///######################################################################
                 ///                             Player
                 ///######################################################################
+
+                            
                 if (player != null)
                 {
-                    ImGui.SeparatorText($"{player.Name.name}");
-                    if (ImGui.TreeNode("Transform"))
+                    if (player.GetComponent<kHealth>() != null)
                     {
-                        ImGui.PushItemWidth(50); //Set input field size
+                        kHealth? playerHealth = player.GetComponent<kHealth>();
+                        ImGui.SeparatorText($"{player.Name.name}");
+                        if (ImGui.TreeNode("Transform"))
+                        {
+                            ImGui.PushItemWidth(50); //Set input field size
 
-                        ImGui.Text("Position");
-                        ImGui.DragFloat("X", ref player.Transform.position.X, 17);
-                        ImGui.DragFloat("Y", ref player.Transform.position.Y, 17);
+                            ImGui.Text("Position");
+                            ImGui.DragFloat("X", ref player.Transform.position.X, 17);
+                            ImGui.DragFloat("Y", ref player.Transform.position.Y, 17);
 
-                        ImGui.TreePop();
+                            ImGui.TreePop();
+                        }
+                        ImGui.Text($"Health: {playerHealth.health}");
                     }
-                    ImGui.Text($"Health: {player.GetComponent<kHealth>().health}");
-                }
+                }    
                 ///######################################################################
                 ///                        Selected Object
                 ///######################################################################

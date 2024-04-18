@@ -82,19 +82,22 @@ namespace Kai_Engine.GAME.Management
 
         public void Update()
         {
-            _eMovement.CheckCollision(this, player);
+            if (_eMovement != null && Camera != null)
+            {
+                _eMovement.CheckCollision(this, player);
 
-            _eMovement.MovePlayer(this);
-            _eMovement.CheckDirection(player);
+                _eMovement.MovePlayer(this);
+                _eMovement.CheckDirection(player);
 
-            _eMovement.CheckCollision(this, player);
+                _eMovement.CheckCollision(this, player);
 
-            ///######################################################################
-            ///
-            ///                               CAMERA
-            ///                           
-            ///######################################################################
-            Camera.Update(player.Transform.position);
+                ///######################################################################
+                ///
+                ///                               CAMERA
+                ///                           
+                ///######################################################################
+                Camera.Update(player.Transform.position);
+            }
         }
 
         public void Draw()

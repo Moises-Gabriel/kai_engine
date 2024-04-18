@@ -41,29 +41,32 @@ namespace Kai_Engine.GAME.Gameplay
 
                 KeyboardKey keyPressed = (KeyboardKey)Raylib.GetKeyPressed();
 
-                if (!playerCollider.IsColliding)
+                if (playerCollider != null && playerTransform != null)
                 {
-                    switch (keyPressed)
+                    if (!playerCollider.IsColliding)
                     {
-                        case KeyboardKey.W:
-                            playerTransform.position.Y -= _moveDistance;
-                            lastDirection = Direction.UP;
-                            break;
-                        case KeyboardKey.S:
-                            playerTransform.position.Y += _moveDistance;
-                            lastDirection = Direction.DOWN;
-                            break;
-                        case KeyboardKey.A:
-                            playerTransform.position.X -= _moveDistance;
-                            lastDirection = Direction.LEFT;
-                            break;
-                        case KeyboardKey.D:
-                            playerTransform.position.X += _moveDistance;
-                            lastDirection = Direction.RIGHT;
-                            break;
-                        default:
-                            lastDirection = null;  //No valid key, no direction
-                            break;
+                        switch (keyPressed)
+                        {
+                            case KeyboardKey.W:
+                                playerTransform.position.Y -= _moveDistance;
+                                lastDirection = Direction.UP;
+                                break;
+                            case KeyboardKey.S:
+                                playerTransform.position.Y += _moveDistance;
+                                lastDirection = Direction.DOWN;
+                                break;
+                            case KeyboardKey.A:
+                                playerTransform.position.X -= _moveDistance;
+                                lastDirection = Direction.LEFT;
+                                break;
+                            case KeyboardKey.D:
+                                playerTransform.position.X += _moveDistance;
+                                lastDirection = Direction.RIGHT;
+                                break;
+                            default:
+                                lastDirection = null;  //No valid key, no direction
+                                break;
+                        }
                     }
                 }
             }
@@ -77,35 +80,39 @@ namespace Kai_Engine.GAME.Gameplay
             kTransform? playerTransform = player.GetComponent<kTransform>();
             kCollider? playerCollider = player.GetComponent<kCollider>();
 
-            if (playerCollider.IsColliding && lastDirection != null && otherObject != null)
+            if (playerCollider != null && playerTransform != null)
             {
-                Vector2 newPosition = playerTransform.position;
-                switch (lastDirection)
+                if (playerCollider.IsColliding && lastDirection != null && otherObject != null)
                 {
-                    case Direction.UP:
-                        newPosition.Y += _moveDistance;
-                        Dig(otherObject);
-                        break;
-                    case Direction.DOWN:
-                        newPosition.Y -= _moveDistance;
-                        break;
-                    case Direction.LEFT:
-                        newPosition.X += _moveDistance;
-                        break;
-                    case Direction.RIGHT:
-                        newPosition.X -= _moveDistance;
-                        break;
-                }
+                    Vector2 newPosition = playerTransform.position;
+                    switch (lastDirection)
+                    {
+                        case Direction.UP:
+                            newPosition.Y += _moveDistance;
+                            Dig(otherObject);
+                            break;
+                        case Direction.DOWN:
+                            newPosition.Y -= _moveDistance;
+                            break;
+                        case Direction.LEFT:
+                            newPosition.X += _moveDistance;
+                            break;
+                        case Direction.RIGHT:
+                            newPosition.X -= _moveDistance;
+                            break;
+                    }
 
-                await Bump(playerTransform, newPosition);
-                if (otherObject != null)
-                    Dig(otherObject);
-                lastDirection = null;  //Reset direction after handling collision
+                    await Bump(playerTransform, newPosition);
+                    if (otherObject != null)
+                        Dig(otherObject);
+                    lastDirection = null;  //Reset direction after handling collision
+                }
+                
+                //Reset collision flags
+                playerCollider.IsColliding = false;
+                otherObject = null;  //Clear the reference to prevent unintended repeated interaction
             }
 
-            //Reset collision flags
-            playerCollider.IsColliding = false;
-            otherObject = null;  //Clear the reference to prevent unintended repeated interaction
         }
 
         //Reset position to before wall
