@@ -6,6 +6,7 @@ using Kai_Engine.GAME.Gameplay;
 using Raylib_cs;
 using System.Numerics;
 using System.IO;
+using System.Data;
 
 namespace Kai_Engine.GAME.Management
 {
@@ -46,8 +47,7 @@ namespace Kai_Engine.GAME.Management
         public bool PlayerCreated = false;
 
         //Camera
-        public Camera? Camera;
-        public bool Clamped = false;
+        public Camera2D Camera;
         #endregion
 
         //Gameplay
@@ -56,16 +56,21 @@ namespace Kai_Engine.GAME.Management
         public void Init()
         {
             //Set sprite paths
-            _itemSpritePath   = Path.Combine(_basePath, "GAME/Assets/item_sprite.png");
-            _wallSpritePath   = Path.Combine(_basePath, "GAME/Assets/wall_sprite.png");
-            _floorSpritePath  = Path.Combine(_basePath, "GAME/Assets/floor_sprite.png");
+            _itemSpritePath = Path.Combine(_basePath, "GAME/Assets/item_sprite.png");
+            _wallSpritePath = Path.Combine(_basePath, "GAME/Assets/wall_sprite.png");
+            _floorSpritePath = Path.Combine(_basePath, "GAME/Assets/floor_sprite.png");
             _playerSpritePath = Path.Combine(_basePath, "GAME/Assets/player_sprite.png");
 
             //Initialize entity sprites
-            _itemSprite   = Raylib.LoadTexture(_itemSpritePath);
-            _floorSprite  = Raylib.LoadTexture(_floorSpritePath);
-            _wallSprite   = Raylib.LoadTexture(_wallSpritePath);
+            _itemSprite = Raylib.LoadTexture(_itemSpritePath);
+            _floorSprite = Raylib.LoadTexture(_floorSpritePath);
+            _wallSprite = Raylib.LoadTexture(_wallSpritePath);
             _playerSprite = Raylib.LoadTexture(_playerSpritePath);
+
+            //Initialize Camera
+            Camera.Offset = new Vector2(Program.MapWidth / 2, Program.MapHeight / 2);
+            Camera.Rotation = 0;
+            Camera.Zoom = 2.0f;
         }
 
         public void Start()
@@ -76,27 +81,26 @@ namespace Kai_Engine.GAME.Management
             //Create level
             GenerateLevel();
 
-            //Initialize Camera
-            Camera = new Camera(Program.MapWidth/2,Program.MapHeight/2);
+            //Set target after player has spawned
+            Camera.Target = player.Transform.position;
         }
 
         public void Update()
         {
-            if (_eMovement != null && Camera != null)
+            if (_eMovement != null)
             {
+                ///######################################################################
+                ///
+                ///                          Entity Movement
+                ///                           
+                ///######################################################################
                 _eMovement.CheckCollision(this, player);
 
                 _eMovement.MovePlayer(this);
                 _eMovement.CheckDirection(player);
+                Camera.Target = player.Transform.position;
 
                 _eMovement.CheckCollision(this, player);
-
-                ///######################################################################
-                ///
-                ///                               CAMERA
-                ///                           
-                ///######################################################################
-                Camera.Update(player.Transform.position);
             }
         }
 
@@ -106,7 +110,7 @@ namespace Kai_Engine.GAME.Management
             var sortedEntities = Entities.OrderBy(e => ((GameObject)e).Layer).ToList();
             foreach (var entity in sortedEntities)
             {
-                entity.Draw(Camera);
+                entity.Draw(player.Transform.position);
             }
         }
 

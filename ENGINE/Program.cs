@@ -7,12 +7,12 @@ namespace Kai_Engine.ENGINE
 {
     internal class Program
     {
-        private const string _engineName    = "Kai";
+        private const string _engineName = "Kai";
         private const string _engineVersion = "0.0.1";
-        private const string _gameName      = "Down & Down";
+        private const string _gameName = "Down & Down";
 
-        internal static int MapWidth  = 960;
-        internal static int MapHeight = 540;
+        internal static int MapWidth = 1280;
+        internal static int MapHeight = 720;
 
         //Editor
         private const bool _editable = true;
@@ -26,7 +26,7 @@ namespace Kai_Engine.ENGINE
             //------Initialize------
             EntityManager entityManager = new();
             Kai_Editor kaiEditor = new();
-            
+
             Raylib.InitWindow(MapWidth, MapHeight, _engineName);
             Raylib.SetTargetFPS(120);
 
@@ -51,12 +51,15 @@ namespace Kai_Engine.ENGINE
 
                 //-------Draw------
                 Raylib.BeginDrawing();
+                Raylib.BeginMode2D(entityManager.Camera);
+
                 Raylib.ClearBackground(Color.Black);
 
                 entityManager.Draw();
                 if (_editable)
                     kaiEditor.Draw(entityManager);
 
+                Raylib.EndMode2D();
                 Raylib.EndDrawing();
             }
 
