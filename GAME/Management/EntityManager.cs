@@ -1,12 +1,11 @@
-﻿using Kai_Engine.ENGINE;
-using Kai_Engine.ENGINE.Components;
+﻿using Kai_Engine.ENGINE.Components;
 using Kai_Engine.ENGINE.Entities;
-using Kai_Engine.ENGINE.Utils;
 using Kai_Engine.GAME.Gameplay;
-using Raylib_cs;
+using Kai_Engine.ENGINE.Utils;
+using Kai_Engine.ENGINE;
 using System.Numerics;
-using System.IO;
 using System.Data;
+using Raylib_cs;
 
 namespace Kai_Engine.GAME.Management
 {
@@ -87,18 +86,18 @@ namespace Kai_Engine.GAME.Management
 
         public void Update()
         {
+            ///######################################################################
+            ///
+            ///                          Entity Movement
+            ///                           
+            ///######################################################################
             if (_eMovement != null)
             {
-                ///######################################################################
-                ///
-                ///                          Entity Movement
-                ///                           
-                ///######################################################################
                 _eMovement.CheckCollision(this, player);
 
                 _eMovement.MovePlayer(this);
                 _eMovement.CheckDirection(player);
-                Camera.Target = player.Transform.position;
+                CameraUpdate(ref Camera, player.Transform, new Vector2(Program.MapWidth, Program.MapHeight));
 
                 _eMovement.CheckCollision(this, player);
             }
@@ -110,7 +109,47 @@ namespace Kai_Engine.GAME.Management
             var sortedEntities = Entities.OrderBy(e => ((GameObject)e).Layer).ToList();
             foreach (var entity in sortedEntities)
             {
-                entity.Draw(player.Transform.position);
+                entity.Draw();
+            }
+        }
+
+        //FIXME: Camera stuff probably shouldn't be in the entity manager, but I can't think of where it should go
+        public void CameraUpdate(ref Camera2D camera, kTransform playerPosition, Vector2 screenSize)
+        {
+            // Define the deadzone
+            int deadZoneWidth = (int)screenSize.X / 4;  // Deadzone width is one-fourth of the screen width
+            int deadZoneHeight = (int)screenSize.Y / 4;  // Deadzone height is one-fourth of the screen height
+            Rectangle deadZone = new Rectangle
+            (
+                camera.Target.X - deadZoneWidth / 2,
+                camera.Target.Y - deadZoneHeight / 2,
+                deadZoneWidth,
+                deadZoneHeight
+            );
+
+            // Check if the player's position is outside the deadzone
+            bool isOutsideDeadZone =
+                playerPosition.position.X < deadZone.X ||
+                playerPosition.position.X > deadZone.X + deadZone.Width ||
+                playerPosition.position.Y < deadZone.Y ||
+                playerPosition.position.Y > deadZone.Y + deadZone.Height;
+
+            if (isOutsideDeadZone)
+            {
+                // Update camera target position smoothly
+                float smoothFactor = 0.025f;  // Adjust this factor to control the smoothing speed
+
+                // Determine if player is outside the deadzone horizontally
+                if (playerPosition.position.X < deadZone.X || playerPosition.position.X > deadZone.X + deadZone.Width)
+                {
+                    camera.Target.X = KaiMath.Lerp(camera.Target.X, playerPosition.position.X, smoothFactor);
+                }
+
+                // Determine if player is outside the deadzone vertically
+                if (playerPosition.position.Y < deadZone.Y || playerPosition.position.Y > deadZone.Y + deadZone.Height)
+                {
+                    camera.Target.Y = KaiMath.Lerp(camera.Target.Y, playerPosition.position.Y, smoothFactor);
+                }
             }
         }
 
@@ -126,7 +165,8 @@ namespace Kai_Engine.GAME.Management
             kCollider playerCollider = new();    //initialize Collider component
             kTransform playerTransform = player.Transform;
 
-            playerCollider.ColliderSize(playerTransform, playerTransform.size);     //Set the bounds of the collider
+            Vector2 playerPosition = new Vector2(playerTransform.position.X, playerTransform.position.Y);
+            playerCollider.ColliderSize(playerPosition, playerTransform.size);     //Set the bounds of the collider
 
             player.AddComponent(playerHealth);             //add Health component
             player.AddComponent(playerCollider);           //add Player Collider
@@ -146,7 +186,8 @@ namespace Kai_Engine.GAME.Management
             kHealth itemHealth = new();          //initialize Health component
             itemHealth.health = 10;                      //set the health
 
-            itemCollider.ColliderSize(itemTransform, itemTransform.size);
+            Vector2 itemPosition = new Vector2(itemTransform.position.X, itemTransform.position.Y);
+            itemCollider.ColliderSize(itemPosition, itemTransform.size);
 
             item.AddComponent(itemCollider);
             item.AddComponent(itemHealth);
@@ -235,8 +276,10 @@ namespace Kai_Engine.GAME.Management
                         //Components
                         walls.AddComponent(wallCollider);
 
+
                         kTransform wallTrans = walls.Transform;
-                        wallCollider.ColliderSize(wallTrans, new Vector2(16, 16));
+                        Vector2 wallPosition = new Vector2(wallTrans.position.X, wallTrans.position.Y);
+                        wallCollider.ColliderSize(wallPosition, new Vector2(16, 16));
                         wallCollider.IsActive = true;
 
                         walls.AddComponent(wallHealth);

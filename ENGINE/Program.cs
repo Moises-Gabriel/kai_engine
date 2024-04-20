@@ -54,12 +54,13 @@ namespace Kai_Engine.ENGINE
                 Raylib.BeginMode2D(entityManager.Camera);
 
                 Raylib.ClearBackground(Color.Black);
-
                 entityManager.Draw();
+
+                Raylib.EndMode2D();
+
                 if (_editable)
                     kaiEditor.Draw(entityManager);
 
-                Raylib.EndMode2D();
                 Raylib.EndDrawing();
             }
 

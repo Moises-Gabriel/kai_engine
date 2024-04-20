@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Kai_Engine.ENGINE.Entities
 {
-    public interface IEntity { void Draw(Vector2 targetPos); }
+    public interface IEntity { void Draw(); }
 
     //NOTE: Layer hierarchy goes from bottom to top
     public enum Layer
@@ -60,7 +60,7 @@ namespace Kai_Engine.ENGINE.Entities
             return null; // Component not found
         }
 
-        public void Draw(Vector2 targetPos)
+        public void Draw()
         {
             if (IsActive)
             {

@@ -107,7 +107,7 @@ namespace Kai_Engine.GAME.Gameplay
                         Dig(otherObject);
                     lastDirection = null;  //Reset direction after handling collision
                 }
-                
+
                 //Reset collision flags
                 playerCollider.IsColliding = false;
                 otherObject = null;  //Clear the reference to prevent unintended repeated interaction
@@ -167,7 +167,8 @@ namespace Kai_Engine.GAME.Gameplay
 
             if (playerTransform == null || playerCollider == null) return;
 
-            Vector4 playerCol = playerCollider.ColliderSize(playerTransform, playerTransform.size);
+            Vector2 playerPosition = new Vector2(playerTransform.position.X, playerTransform.position.Y);
+            Vector4 playerCol = playerCollider.ColliderSize(playerPosition, playerTransform.size);
             GameObject? closestObject = null;
             float closestDistance = float.MaxValue;
 
@@ -180,7 +181,8 @@ namespace Kai_Engine.GAME.Gameplay
 
                     if (objectCollider == null || objectTransform == null) continue;
 
-                    Vector4 otherCol = objectCollider.ColliderSize(objectTransform, objectTransform.size);
+                    Vector2 objectPosition = new Vector2(objectTransform.position.X, objectTransform.position.Y);
+                    Vector4 otherCol = objectCollider.ColliderSize(objectPosition, objectTransform.size);
                     bool colliding = (int)playerCol.X <= otherCol.X + otherCol.Z && (int)playerCol.Z + (int)playerCol.X >= otherCol.X
                                   && (int)playerCol.Y <= otherCol.Y + otherCol.W && (int)playerCol.Y + (int)playerCol.W >= otherCol.Y;
 

@@ -89,10 +89,10 @@ namespace Kai_Engine.ENGINE.Components
         public bool FinishedProcessing = false;
 
         //Set collider size to object size
-        public Vector4 ColliderSize(kTransform transform, Vector2 size)
+        public Vector4 ColliderSize(Vector2 position, Vector2 size)
         {
             //x,y,w(z),h(w)
-            return new Vector4((int)transform.position.X, (int)transform.position.Y, (int)size.X, (int)size.Y);
+            return new Vector4((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
         }
 
         private GameObject _gameObject;
@@ -106,10 +106,10 @@ namespace Kai_Engine.ENGINE.Components
         }
 
         #region DEBUG
-        public void DrawBounds(kTransform transform, Vector2 size, Color debugColor)
+        public void DrawBounds(Vector2 position, Vector2 size, Color debugColor)
         {
-            Raylib.DrawRectangleLines((int)ColliderSize(transform, size).X, (int)ColliderSize(transform, size).Y,
-                                      (int)ColliderSize(transform, size).Z, (int)ColliderSize(transform, size).W, debugColor);
+            Raylib.DrawRectangleLines((int)ColliderSize(position, size).X, (int)ColliderSize(position, size).Y,
+                                      (int)ColliderSize(position, size).Z, (int)ColliderSize(position, size).W, debugColor);
         }
         #endregion
     }
