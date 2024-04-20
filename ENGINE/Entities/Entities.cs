@@ -49,6 +49,11 @@ namespace Kai_Engine.ENGINE.Entities
             Components.Add(component);
         }
 
+        public void RemoveComponent(IComponent component)
+        {
+            Components.Remove(component);
+        }
+
         public T? GetComponent<T>() where T : class, IComponent
         {
             // Find the first component of the specified type

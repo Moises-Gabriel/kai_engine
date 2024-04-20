@@ -171,7 +171,7 @@ namespace Kai_Engine.EDITOR
         ///######################################################################
         private void DrawObjectColliders(EntityManager eManager)
         {
-            Vector2 objectSize = new Vector2(16 * eManager.Camera.Zoom, 16 * eManager.Camera.Zoom);
+            Vector2 objectSize = new Vector2(16 * eManager.Camera.RayCamera.Zoom, 16 * eManager.Camera.RayCamera.Zoom);
             if (_showCollision)
             {
                 if (eManager.player != null)
@@ -180,14 +180,14 @@ namespace Kai_Engine.EDITOR
                     Vector2 playerWorldPos = new Vector2(eManager.player.Transform.position.X, eManager.player.Transform.position.Y);
                     if (playerCollider != null && playerCollider.IsColliding)
                     {
-                        playerCollider.DrawBounds(KaiMath.WorldToScreen(playerWorldPos, eManager.Camera), objectSize, Color.Red);
-                        Raylib.DrawRectangle((int)KaiMath.WorldToScreen(playerWorldPos, eManager.Camera).X, (int)KaiMath.WorldToScreen(playerWorldPos, eManager.Camera).Y,
+                        playerCollider.DrawBounds(KaiMath.WorldToScreen(playerWorldPos, eManager.Camera.RayCamera), objectSize, Color.Red);
+                        Raylib.DrawRectangle((int)KaiMath.WorldToScreen(playerWorldPos, eManager.Camera.RayCamera).X, (int)KaiMath.WorldToScreen(playerWorldPos, eManager.Camera.RayCamera).Y,
                                              (int)objectSize.X, (int)objectSize.Y, Color.Red);
                     }
                     else
                     {
-                        playerCollider.DrawBounds(KaiMath.WorldToScreen(playerWorldPos, eManager.Camera), objectSize, Color.Green);
-                        Raylib.DrawRectangle((int)KaiMath.WorldToScreen(playerWorldPos, eManager.Camera).X, (int)KaiMath.WorldToScreen(playerWorldPos, eManager.Camera).Y,
+                        playerCollider.DrawBounds(KaiMath.WorldToScreen(playerWorldPos, eManager.Camera.RayCamera), objectSize, Color.Green);
+                        Raylib.DrawRectangle((int)KaiMath.WorldToScreen(playerWorldPos, eManager.Camera.RayCamera).X, (int)KaiMath.WorldToScreen(playerWorldPos, eManager.Camera.RayCamera).Y,
                                              (int)objectSize.X, (int)objectSize.Y, Color.Green);
                     }
                 }
@@ -198,7 +198,7 @@ namespace Kai_Engine.EDITOR
                     if (wall.IsActive)
                     {
                         Vector2 wallWorldPos = new Vector2(wall.GetComponent<kTransform>().position.X, wall.GetComponent<kTransform>().position.Y);
-                        wall.GetComponent<kCollider>().DrawBounds(KaiMath.WorldToScreen(wallWorldPos, eManager.Camera), objectSize, Color.Green);
+                        wall.GetComponent<kCollider>().DrawBounds(KaiMath.WorldToScreen(wallWorldPos, eManager.Camera.RayCamera), objectSize, Color.Green);
                     }
 
                 }
@@ -209,7 +209,7 @@ namespace Kai_Engine.EDITOR
                     if (item.IsActive)
                     {
                         Vector2 itemWorldPos = new Vector2(item.GetComponent<kTransform>().position.X, item.GetComponent<kTransform>().position.Y);
-                        item.GetComponent<kCollider>().DrawBounds(KaiMath.WorldToScreen(itemWorldPos, eManager.Camera), objectSize, Color.Green);
+                        item.GetComponent<kCollider>().DrawBounds(KaiMath.WorldToScreen(itemWorldPos, eManager.Camera.RayCamera), objectSize, Color.Green);
                     }
                 }
             }
@@ -226,9 +226,9 @@ namespace Kai_Engine.EDITOR
         private void DrawSelectionBox(Vector2 selectedObjectPosition, Vector2 selectedObjectSize, EntityManager eManager)
         {
             Vector2 selectedObjectWorldPos = new Vector2((int)selectedObjectPosition.X, (int)selectedObjectPosition.Y);
-            Raylib.DrawRectangleLinesEx(new Rectangle(KaiMath.WorldToScreen(selectedObjectWorldPos, eManager.Camera).X,
-                                                      KaiMath.WorldToScreen(selectedObjectWorldPos, eManager.Camera).Y,
-                                                      (int)selectedObjectSize.X * eManager.Camera.Zoom, (int)selectedObjectSize.Y * eManager.Camera.Zoom), 1, Color.White);
+            Raylib.DrawRectangleLinesEx(new Rectangle(KaiMath.WorldToScreen(selectedObjectWorldPos, eManager.Camera.RayCamera).X,
+                                                      KaiMath.WorldToScreen(selectedObjectWorldPos, eManager.Camera.RayCamera).Y,
+                                                      (int)selectedObjectSize.X * eManager.Camera.RayCamera.Zoom, (int)selectedObjectSize.Y * eManager.Camera.RayCamera.Zoom), 1, Color.White);
         }
         private void DrawCameraDeadzone(EntityManager eManager, Vector2 screenSize)
         {
@@ -238,19 +238,19 @@ namespace Kai_Engine.EDITOR
 
             // Adjust the deadzone position relative to the camera target
             Vector2 deadZonePos = new Vector2(
-                eManager.Camera.Target.X - deadZoneWidth / 2,
-                eManager.Camera.Target.Y - deadZoneHeight / 2
+                eManager.Camera.RayCamera.Target.X - deadZoneWidth / 2,
+                eManager.Camera.RayCamera.Target.Y - deadZoneHeight / 2
             );
 
             // Convert the deadzone position from world space to screen space
-            Vector2 deadZoneScreenPos = KaiMath.WorldToScreen(deadZonePos, eManager.Camera);
+            Vector2 deadZoneScreenPos = KaiMath.WorldToScreen(deadZonePos, eManager.Camera.RayCamera);
 
             // Calculate the deadzone rectangle in screen space
             Rectangle deadZone = new Rectangle(
                 deadZoneScreenPos.X,
                 deadZoneScreenPos.Y,
-                deadZoneWidth * eManager.Camera.Zoom,  // Scale width by the camera's zoom level
-                deadZoneHeight * eManager.Camera.Zoom  // Scale height by the camera's zoom level
+                deadZoneWidth * eManager.Camera.RayCamera.Zoom,  // Scale width by the Camera.RayCamera's zoom level
+                deadZoneHeight * eManager.Camera.RayCamera.Zoom  // Scale height by the Camera.RayCamera's zoom level
             );
 
             if (_showDeadZone)
@@ -276,7 +276,7 @@ namespace Kai_Engine.EDITOR
 
                     //Determine wall's collider size
                     Vector2 otherWorldPos = new Vector2(objectTransform.position.X, objectTransform.position.Y);
-                    Vector4 otherCol = objectCollider.ColliderSize(KaiMath.WorldToScreen(otherWorldPos, eManager.Camera), _colliderSize * eManager.Camera.Zoom);
+                    Vector4 otherCol = objectCollider.ColliderSize(KaiMath.WorldToScreen(otherWorldPos, eManager.Camera.RayCamera), _colliderSize * eManager.Camera.RayCamera.Zoom);
 
                     //AABB collision check between Mouse Position and Wall's collider
                     bool colliding = (int)GetMousePosition().X <= otherCol.X + otherCol.Z && (int)GetMousePosition().Z + (int)GetMousePosition().X >= otherCol.X

@@ -51,7 +51,7 @@ namespace Kai_Engine.ENGINE
 
                 //-------Draw------
                 Raylib.BeginDrawing();
-                Raylib.BeginMode2D(entityManager.Camera);
+                Raylib.BeginMode2D(entityManager.Camera.RayCamera);
 
                 Raylib.ClearBackground(Color.Black);
                 entityManager.Draw();

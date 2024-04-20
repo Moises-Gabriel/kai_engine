@@ -6,6 +6,7 @@ using Kai_Engine.ENGINE;
 using System.Numerics;
 using System.Data;
 using Raylib_cs;
+using Kai_Engine.ENGINE.Systems;
 
 namespace Kai_Engine.GAME.Management
 {
@@ -46,7 +47,7 @@ namespace Kai_Engine.GAME.Management
         public bool PlayerCreated = false;
 
         //Camera
-        public Camera2D Camera;
+        public Camera Camera;
         #endregion
 
         //Gameplay
@@ -67,9 +68,7 @@ namespace Kai_Engine.GAME.Management
             _playerSprite = Raylib.LoadTexture(_playerSpritePath);
 
             //Initialize Camera
-            Camera.Offset = new Vector2(Program.MapWidth / 2, Program.MapHeight / 2);
-            Camera.Rotation = 0;
-            Camera.Zoom = 2.0f;
+            Camera = new Camera();
         }
 
         public void Start()
@@ -81,7 +80,8 @@ namespace Kai_Engine.GAME.Management
             GenerateLevel();
 
             //Set target after player has spawned
-            Camera.Target = player.Transform.position;
+            Camera.Start();
+            Camera.RayCamera.Target = player.Transform.position;
         }
 
         public void Update()
@@ -97,7 +97,7 @@ namespace Kai_Engine.GAME.Management
 
                 _eMovement.MovePlayer(this);
                 _eMovement.CheckDirection(player);
-                CameraUpdate(ref Camera, player.Transform, new Vector2(Program.MapWidth, Program.MapHeight));
+                Camera.Update(ref Camera.RayCamera, player.Transform, new Vector2(Program.MapWidth, Program.MapHeight));
 
                 _eMovement.CheckCollision(this, player);
             }
@@ -110,46 +110,6 @@ namespace Kai_Engine.GAME.Management
             foreach (var entity in sortedEntities)
             {
                 entity.Draw();
-            }
-        }
-
-        //FIXME: Camera stuff probably shouldn't be in the entity manager, but I can't think of where it should go
-        public void CameraUpdate(ref Camera2D camera, kTransform playerPosition, Vector2 screenSize)
-        {
-            // Define the deadzone
-            int deadZoneWidth = (int)screenSize.X / 4;  // Deadzone width is one-fourth of the screen width
-            int deadZoneHeight = (int)screenSize.Y / 4;  // Deadzone height is one-fourth of the screen height
-            Rectangle deadZone = new Rectangle
-            (
-                camera.Target.X - deadZoneWidth / 2,
-                camera.Target.Y - deadZoneHeight / 2,
-                deadZoneWidth,
-                deadZoneHeight
-            );
-
-            // Check if the player's position is outside the deadzone
-            bool isOutsideDeadZone =
-                playerPosition.position.X < deadZone.X ||
-                playerPosition.position.X > deadZone.X + deadZone.Width ||
-                playerPosition.position.Y < deadZone.Y ||
-                playerPosition.position.Y > deadZone.Y + deadZone.Height;
-
-            if (isOutsideDeadZone)
-            {
-                // Update camera target position smoothly
-                float smoothFactor = 0.025f;  // Adjust this factor to control the smoothing speed
-
-                // Determine if player is outside the deadzone horizontally
-                if (playerPosition.position.X < deadZone.X || playerPosition.position.X > deadZone.X + deadZone.Width)
-                {
-                    camera.Target.X = KaiMath.Lerp(camera.Target.X, playerPosition.position.X, smoothFactor);
-                }
-
-                // Determine if player is outside the deadzone vertically
-                if (playerPosition.position.Y < deadZone.Y || playerPosition.position.Y > deadZone.Y + deadZone.Height)
-                {
-                    camera.Target.Y = KaiMath.Lerp(camera.Target.Y, playerPosition.position.Y, smoothFactor);
-                }
             }
         }
 
