@@ -1,12 +1,12 @@
 ﻿using Kai_Engine.ENGINE.Components;
 using Kai_Engine.ENGINE.Entities;
+using Kai_Engine.ENGINE.Systems;
 using Kai_Engine.GAME.Gameplay;
 using Kai_Engine.ENGINE.Utils;
 using Kai_Engine.ENGINE;
 using System.Numerics;
 using System.Data;
 using Raylib_cs;
-using Kai_Engine.ENGINE.Systems;
 
 namespace Kai_Engine.GAME.Management
 {
@@ -21,6 +21,8 @@ namespace Kai_Engine.GAME.Management
 
         #region Entity Variables
         private string _basePath = Environment.CurrentDirectory;
+
+
 
         //List of all entities/GameObjects in the game
         public List<IEntity> Entities = new();
@@ -82,14 +84,13 @@ namespace Kai_Engine.GAME.Management
             //Set target after player has spawned
             Camera.Start();
             Camera.RayCamera.Target = player.Transform.position;
+
         }
 
         public void Update()
         {
             ///######################################################################
-            ///
             ///                          Entity Movement
-            ///                           
             ///######################################################################
             if (_eMovement != null)
             {
@@ -97,10 +98,11 @@ namespace Kai_Engine.GAME.Management
 
                 _eMovement.MovePlayer(this);
                 _eMovement.CheckDirection(player);
-                Camera.Update(ref Camera.RayCamera, player.Transform, new Vector2(Program.MapWidth, Program.MapHeight));
 
                 _eMovement.CheckCollision(this, player);
             }
+
+            Camera.Update(ref Camera.RayCamera, player.Transform, new Vector2(Program.MapWidth, Program.MapHeight));
         }
 
         public void Draw()
@@ -113,26 +115,29 @@ namespace Kai_Engine.GAME.Management
             }
         }
 
+
         public void AddPlayer(Vector2 spawnPoint)
         {
             GameObject _player = new(_playerSprite, spawnPoint, Layer.Player, "Player", true);
             player = _player;
 
             //Add Components
-            kHealth playerHealth = new();          //initialize Health component
-            playerHealth.health = 50;                      //set the health                        
+            kHealth playerHealth = new kHealth
+            {
+                health = 50
+            };
 
-            kCollider playerCollider = new();    //initialize Collider component
+            kCollider playerCollider = new();
             kTransform playerTransform = player.Transform;
 
             Vector2 playerPosition = new Vector2(playerTransform.position.X, playerTransform.position.Y);
-            playerCollider.ColliderSize(playerPosition, playerTransform.size);     //Set the bounds of the collider
+            playerCollider.ColliderSize(playerPosition, playerTransform.size);
 
-            player.AddComponent(playerHealth);             //add Health component
-            player.AddComponent(playerCollider);           //add Player Collider
+            player.AddComponent(playerHealth);
+            player.AddComponent(playerCollider);
 
-            Entities.Add(player);                          //add Player to entity list
-            //AllObjects.Add(player);                        //add Player to all objects list
+            Entities.Add(player);
+            //AllObjects.Add(player); 
         }
 
         public void AddItem(Vector2 spawnPoint)
@@ -143,8 +148,10 @@ namespace Kai_Engine.GAME.Management
             kCollider itemCollider = new();
             kTransform itemTransform = item.Transform;
 
-            kHealth itemHealth = new();          //initialize Health component
-            itemHealth.health = 10;                      //set the health
+            kHealth itemHealth = new kHealth
+            {
+                health = 10
+            };
 
             Vector2 itemPosition = new Vector2(itemTransform.position.X, itemTransform.position.Y);
             itemCollider.ColliderSize(itemPosition, itemTransform.size);

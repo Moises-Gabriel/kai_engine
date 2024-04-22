@@ -19,7 +19,7 @@ namespace Kai_Engine.ENGINE.Systems
         public void Update(ref Camera2D camera, kTransform playerPosition, Vector2 screenSize)
         {
             //Define the deadzone
-            int deadZoneWidth = (int)screenSize.X / 4;
+            int deadZoneWidth = (int)screenSize.X / 4;  //Deadzone width is one-fourth of the screen width
             int deadZoneHeight = (int)screenSize.Y / 4;
 
             Rectangle deadZone = new Rectangle

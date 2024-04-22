@@ -2,6 +2,7 @@
 using Kai_Engine.ENGINE.Utils;
 using Kai_Engine.EDITOR;
 using Raylib_cs;
+using Kai_Engine.ENGINE.UserInterface;
 
 namespace Kai_Engine.ENGINE
 {
@@ -11,8 +12,8 @@ namespace Kai_Engine.ENGINE
         private const string _engineVersion = "0.0.1";
         private const string _gameName = "Down & Down";
 
-        internal static int MapWidth = 1280;
-        internal static int MapHeight = 720;
+        internal static int MapWidth = 640;
+        internal static int MapHeight = 360;
 
         //Editor
         private const bool _editable = true;
@@ -23,8 +24,11 @@ namespace Kai_Engine.ENGINE
             KaiLogger.Important($"{_engineName}: [v{_engineVersion}]", false);
             KaiLogger.Important($"Game: {_gameName}", false);
 
-            //------Initialize------
+            ///######################################################################
+            ///                             Initialize
+            ///######################################################################
             EntityManager entityManager = new();
+            UIManager uIManager = new();
             Kai_Editor kaiEditor = new();
 
             Raylib.InitWindow(MapWidth, MapHeight, _engineName);
@@ -34,9 +38,13 @@ namespace Kai_Engine.ENGINE
                 kaiEditor.Init();
 
             entityManager.Init();
+            uIManager.Init();
 
-            //------Start------
+            ///######################################################################
+            ///                             Start
+            ///######################################################################
             entityManager.Start();
+            uIManager.Start();
             if (_editable)
                 kaiEditor.Start(entityManager);
 
@@ -44,12 +52,17 @@ namespace Kai_Engine.ENGINE
             while (!Raylib.WindowShouldClose())
             {
 
-                //------Update------
+                ///######################################################################
+                ///                             Update
+                ///######################################################################
                 entityManager.Update();
+                uIManager.Update();
                 if (_editable)
                     kaiEditor.Update(entityManager);
 
-                //-------Draw------
+                ///######################################################################
+                ///                             Draw
+                ///######################################################################
                 Raylib.BeginDrawing();
                 Raylib.BeginMode2D(entityManager.Camera.RayCamera);
 
@@ -58,6 +71,7 @@ namespace Kai_Engine.ENGINE
 
                 Raylib.EndMode2D();
 
+                uIManager.Draw();
                 if (_editable)
                     kaiEditor.Draw(entityManager);
 

@@ -15,8 +15,7 @@ namespace Kai_Engine.EDITOR
         ///########################################################################
         ///                                 FIXME:
         ///                        
-        ///   - All drawing and detection functions need to be updated with
-        ///   screenspace conversion 
+        ///   - Nothing for now
         /// 
         ///########################################################################
 
@@ -101,6 +100,8 @@ namespace Kai_Engine.EDITOR
 
                 ImGui.SeparatorText("Camera");
                 ImGui.Checkbox("Show Deadzone", ref _showDeadZone);
+                ImGui.PushItemWidth(50); //Set input field size
+                ImGui.DragFloat("Zoom", ref eManager.Camera.RayCamera.Zoom);
                 SeparatedSpacer();
 
                 ///######################################################################
@@ -233,8 +234,8 @@ namespace Kai_Engine.EDITOR
         private void DrawCameraDeadzone(EntityManager eManager, Vector2 screenSize)
         {
             // Define the deadzone in world space, not screen space
-            float deadZoneWidth = screenSize.X / 4;  // One-fourth of the screen width
-            float deadZoneHeight = screenSize.Y / 4;  // One-fourth of the screen height
+            float deadZoneWidth = screenSize.X / 4;
+            float deadZoneHeight = screenSize.Y / 4;
 
             // Adjust the deadzone position relative to the camera target
             Vector2 deadZonePos = new Vector2(

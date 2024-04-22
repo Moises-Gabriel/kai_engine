@@ -1,50 +1,44 @@
-﻿using Kai_Engine.ENGINE.Components;
-using Raylib_cs;
 using System.Numerics;
+using Raylib_cs;
 
-namespace Kai_Engine.ENGINE.Entities
+namespace Kai_Engine.ENGINE.UserInterface.UIObjects
 {
-    public interface IEntity { void Draw(); }
-
-    public class GameObject : IEntity
+    public interface IUIObject { void Draw(); }
+    public class UIObject : IUIObject
     {
         public bool IsActive = true;
 
         //Components List
-        public List<IComponent> Components { get; } = new List<IComponent>();
+        public List<IUIComponent> Components { get; } = new();
 
         //Default Components
-        public kName Name { get; set; }
-        public kTransform Transform { get; set; }
-        public kSprite Sprite { get; set; }
+        public UISprite? Sprite { get; set; }
+        public UITransform Transform { get; set; }
         public Layer Layer { get; set; }
 
-
-        public GameObject(Texture2D sprite, Vector2 position, Layer layer, string name, bool isActive)
+        public UIObject(Texture2D sprite, Vector2 position, Vector2 size, Layer layer, bool isActive)
         {
-            Name = new kName { name = name };
-            Transform = new kTransform { position = position, size = new Vector2(16, 16) };
-            Sprite = new kSprite { sprite = sprite };
-            IsActive = isActive;
+            Sprite = new UISprite { sprite = sprite };
+            Transform = new UITransform { position = position, size = size };
             Layer = layer;
+            IsActive = isActive;
 
             //Add default components to component list so they can be accessed through GetComponent
             Components.Add(Transform);
-            Components.Add(Sprite);
         }
 
-        public void AddComponent(IComponent component)
+        public void AddComponent(IUIComponent component)
         {
             component.SetParentObject(this);
             Components.Add(component);
         }
 
-        public void RemoveComponent(IComponent component)
+        public void RemoveComponent(IUIComponent component)
         {
             Components.Remove(component);
         }
 
-        public T? GetComponent<T>() where T : class, IComponent
+        public T? GetComponent<T>() where T : class, IUIComponent
         {
             // Find the first component of the specified type
             foreach (var component in Components)
@@ -64,4 +58,3 @@ namespace Kai_Engine.ENGINE.Entities
         }
     }
 }
-
