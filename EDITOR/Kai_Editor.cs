@@ -76,6 +76,7 @@ namespace Kai_Engine.EDITOR
 
         public void Draw(EntityManager eManager)
         {
+            Raylib.DrawFPS(Program.MapWidth - 80, Program.MapHeight / 16);
             DrawMouseCollider();
             DrawObjectColliders(eManager);
             DrawSelectionBox(new Vector2(_selectedObjectTransform.X, _selectedObjectTransform.Y), new Vector2(_selectedObjectTransform.Z, _selectedObjectTransform.W), eManager);

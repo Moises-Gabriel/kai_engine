@@ -14,12 +14,14 @@ namespace Kai_Engine.ENGINE.UserInterface.UIObjects
         //Default Components
         public UISprite? Sprite { get; set; }
         public UITransform Transform { get; set; }
+        public UIScale Scale { get; set; }
         public Layer Layer { get; set; }
 
-        public UIObject(Texture2D sprite, Vector2 position, Vector2 size, Layer layer, bool isActive)
+        public UIObject(Texture2D sprite, Vector2 position, float scale, Layer layer, bool isActive)
         {
             Sprite = new UISprite { sprite = sprite };
-            Transform = new UITransform { position = position, size = size };
+            Transform = new UITransform { position = position };
+            Scale = new UIScale { scale = scale };
             Layer = layer;
             IsActive = isActive;
 
@@ -53,7 +55,8 @@ namespace Kai_Engine.ENGINE.UserInterface.UIObjects
         {
             if (IsActive)
             {
-                Raylib.DrawTexture(Sprite.sprite, (int)Transform.position.X, (int)Transform.position.Y, Color.White);
+                Raylib.DrawTextureEx(Sprite.sprite, new Vector2((int)Transform.position.X, (int)Transform.position.Y),
+                                    0, Scale.scale, Color.White);
             }
         }
     }
