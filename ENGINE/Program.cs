@@ -28,7 +28,7 @@ namespace Kai_Engine.ENGINE
             ///                             Initialize
             ///######################################################################
             EntityManager entityManager = new();
-            UIManager uIManager = new();
+            UIManager uiManager = new();
             Kai_Editor kaiEditor = new();
 
             Raylib.InitWindow(MapWidth, MapHeight, _engineName);
@@ -38,13 +38,13 @@ namespace Kai_Engine.ENGINE
                 kaiEditor.Init();
 
             entityManager.Init();
-            uIManager.Init();
+            uiManager.Init();
 
             ///######################################################################
             ///                             Start
             ///######################################################################
             entityManager.Start();
-            uIManager.Start();
+            uiManager.Start();
             if (_editable)
                 kaiEditor.Start(entityManager);
 
@@ -56,7 +56,7 @@ namespace Kai_Engine.ENGINE
                 ///                             Update
                 ///######################################################################
                 entityManager.Update();
-                uIManager.Update();
+                uiManager.Update();
                 if (_editable)
                     kaiEditor.Update(entityManager);
 
@@ -71,7 +71,7 @@ namespace Kai_Engine.ENGINE
 
                 Raylib.EndMode2D();
 
-                uIManager.Draw();
+                uiManager.Draw();
                 if (_editable)
                     kaiEditor.Draw(entityManager);
 

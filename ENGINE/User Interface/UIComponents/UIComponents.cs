@@ -14,8 +14,9 @@ namespace Kai_Engine.ENGINE.UserInterface
     ///########################################################################
     public class UISprite : IUIComponent
     {
-        public Texture2D sprite;
+        public Texture2D texture;
         public string? filePath;
+        public bool IsLoaded = false;
 
         private UIObject? _uIObject;
         public void SetParentObject(UIObject parentUIObject)

@@ -1,20 +1,33 @@
 using Kai_Engine.ENGINE.UserInterface.UIObjects;
 using System.Numerics;
 using Raylib_cs;
+using Kai_Engine.ENGINE.Utils;
 
 namespace Kai_Engine.ENGINE.UserInterface
 {
     internal class UIManager
     {
+        ///########################################################################
+        ///                                 TODO:
+        ///                                 
+        ///   UIObjects not rendering for some reason. 
+        ///   Might have to do with adding a sprite as an additional 
+        ///   component
+        /// 
+        ///########################################################################
         //File directory
         private string _basePath = Environment.CurrentDirectory;
 
-        //List of all UI in the game
-        public List<IUIObject> UIObjects = new();
+        //Lists of UI Interfaces and UI Objects
+        public List<IUIObject> UIObjectInterfaces = new();
+        public List<UIObject> UIObjects = new();
 
         //Inventory icons
         private string? _inventorySpritePath;
-        private Texture2D _inventorySprite = new();
+        private Texture2D _inventorySpriteTexture = new();
+
+        //Inventory position
+        private Vector2 inventoryPosition = new();
 
         public void Init()
         {
@@ -22,13 +35,16 @@ namespace Kai_Engine.ENGINE.UserInterface
             _inventorySpritePath = Path.Combine(_basePath, "GAME/Assets/inventory_sprite.png");
 
             //Initialize UI sprites
-            _inventorySprite = Raylib.LoadTexture(_inventorySpritePath);
+            _inventorySpriteTexture = Raylib.LoadTexture(_inventorySpritePath);
 
         }
 
         public void Start()
         {
-            ItemUI(new Vector2(60, 10), 3);
+            inventoryPosition = new Vector2(10, 10);
+
+            Item(inventoryPosition, 3);
+            ItemTwo(inventoryPosition, 3);
         }
 
         public void Update()
@@ -38,21 +54,29 @@ namespace Kai_Engine.ENGINE.UserInterface
 
         public void Draw()
         {
-            UIGroup();
-
-            foreach (var ui in UIObjects)
+            //UIGroup();
+            //BlipGroup();
+            foreach (var item in UIObjectInterfaces)
             {
-                ui.Draw();
+                item.Draw();
             }
         }
 
         //Inventory display
         public void UIGroup()
         {
-            UIBlock(new Vector2(10, 10), 2, 3);
-            UIBlock(new Vector2(60, 10), 2, 3);
-            UIBlock(new Vector2(110, 10), 2, 3);
-            UIBlock(new Vector2(160, 10), 2, 3);
+            UIBlock(new Vector2(inventoryPosition.X, inventoryPosition.Y), 2, 3);
+            UIBlock(new Vector2(inventoryPosition.X + 50, inventoryPosition.Y), 2, 3);
+            UIBlock(new Vector2(inventoryPosition.X + 100, inventoryPosition.Y), 2, 3);
+            UIBlock(new Vector2(inventoryPosition.X + 150, inventoryPosition.Y), 2, 3);
+        }
+
+        public void BlipGroup()
+        {
+            //Shows selected item
+            UIBlip(new Vector2(inventoryPosition.X + 5, 60), 1);
+            UIBlip(new Vector2(inventoryPosition.X + 20, 60), 1);
+            UIBlip(new Vector2(inventoryPosition.X + 35, 60), 1);
         }
 
         private void UIBlock(Vector2 position, int outlineThickness, int scale)
@@ -67,10 +91,47 @@ namespace Kai_Engine.ENGINE.UserInterface
             Raylib.DrawRectangleLinesEx(outlineRec, outlineThickness, outlineColor);
         }
 
-        private void ItemUI(Vector2 position, int scale)
+        private void UIBlip(Vector2 position, int scale)
         {
-            UIObject inventoryBlock = new(_inventorySprite, position, scale, Layer.UI, true);
+            //Filled Rec
+            //Color fillColor = new Color(13, 16, 27, 255);
+            Raylib.DrawRectangle((int)position.X, (int)position.Y, 4 * scale, 4 * scale, Color.RayWhite);
+        }
+
+        private void Item(Vector2 position, int scale)
+        {
+            UIObject inventoryBlock = new(position, scale, Layer.UI, true);
+
+            UISprite sprite = new UISprite
+            {
+                texture = _inventorySpriteTexture,
+                IsLoaded = true
+            };
+
+            inventoryBlock.AddComponent(sprite);
+
             UIObjects.Add(inventoryBlock);
+            UIObjectInterfaces.Add(inventoryBlock);
+
+            KaiLogger.Info("Sprite Loaded: " + sprite.IsLoaded.ToString(), false);
+        }
+
+        private void ItemTwo(Vector2 position, int scale)
+        {
+            UIObject inventoryBlock = new(position, scale, Layer.UI, true);
+
+            UISprite sprite = new UISprite
+            {
+                texture = _inventorySpriteTexture,
+                IsLoaded = true
+            };
+
+            inventoryBlock.AddComponent(sprite);
+
+            UIObjects.Add(inventoryBlock);
+            UIObjectInterfaces.Add(inventoryBlock);
+
+            KaiLogger.Info("Sprite Loaded: " + sprite.IsLoaded.ToString(), false);
         }
     }
 }
