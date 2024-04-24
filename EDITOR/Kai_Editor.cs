@@ -14,7 +14,6 @@ namespace Kai_Engine.EDITOR
     {
         ///########################################################################
         ///                                 FIXME:
-        ///                        
         ///   - Nothing for now
         /// 
         ///########################################################################
@@ -32,6 +31,7 @@ namespace Kai_Engine.EDITOR
         private bool _showCollision = false;
         private bool _selectObject = false;
         private bool _showDeadZone = false;
+        bool debugOpen = false;
 
         ///######################################################################
         ///                        Vectors
@@ -45,6 +45,10 @@ namespace Kai_Engine.EDITOR
         private GameObject? _selectedGameObject;
         private GameObject? player;
 
+
+        ///######################################################################
+        ///                        Main
+        ///######################################################################
         public void Init()
         {
             rlImGui.Setup(true);
@@ -57,7 +61,6 @@ namespace Kai_Engine.EDITOR
             KaiLogger.Important("Kai Editor: Ready", true);
         }
 
-        bool debugOpen = false;
         public void Update(EntityManager eManager)
         {
             DetectMouse(eManager);
@@ -79,7 +82,8 @@ namespace Kai_Engine.EDITOR
             Raylib.DrawFPS(Program.MapWidth - 80, Program.MapHeight / 16);
             DrawMouseCollider();
             DrawObjectColliders(eManager);
-            DrawSelectionBox(new Vector2(_selectedObjectTransform.X, _selectedObjectTransform.Y), new Vector2(_selectedObjectTransform.Z, _selectedObjectTransform.W), eManager);
+            DrawSelectionBox(new Vector2(_selectedObjectTransform.X, _selectedObjectTransform.Y),
+                             new Vector2(_selectedObjectTransform.Z, _selectedObjectTransform.W), eManager);
             DrawCameraDeadzone(eManager, new Vector2(Program.MapWidth, Program.MapHeight));
 
             if (debugOpen)
@@ -88,6 +92,9 @@ namespace Kai_Engine.EDITOR
             }
         }
 
+        ///######################################################################
+        ///                            Drawing
+        ///######################################################################
         private void DrawGUI(EntityManager eManager)
         {
             rlImGui.Begin();
@@ -167,10 +174,6 @@ namespace Kai_Engine.EDITOR
             ImGui.End();
             rlImGui.End();
         }
-
-        ///######################################################################
-        ///                            Drawing
-        ///######################################################################
         private void DrawObjectColliders(EntityManager eManager)
         {
             Vector2 objectSize = new Vector2(16 * eManager.Camera.RayCamera.Zoom, 16 * eManager.Camera.RayCamera.Zoom);

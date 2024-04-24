@@ -15,20 +15,30 @@ namespace Kai_Engine.ENGINE.UserInterface
         ///   component
         /// 
         ///########################################################################
-        //File directory
-        private string _basePath = Environment.CurrentDirectory;
 
-        //Lists of UI Interfaces and UI Objects
+        ///######################################################################
+        ///                        Lists
+        ///######################################################################
         public List<IUIObject> UIObjectInterfaces = new();
         public List<UIObject> UIObjects = new();
 
-        //Inventory icons
+        ///######################################################################
+        ///                        UI Object Variables
+        ///######################################################################
+        private string _basePath = Environment.CurrentDirectory;
+
+        //Inventory
         private string? _inventorySpritePath;
         private Texture2D _inventorySpriteTexture = new();
 
-        //Inventory position
+        ///######################################################################
+        ///                        Vectors
+        ///######################################################################
         private Vector2 inventoryPosition = new();
 
+        ///######################################################################
+        ///                        Main
+        ///######################################################################
         public void Init()
         {
             //Set sprite paths
