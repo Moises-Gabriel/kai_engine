@@ -1,20 +1,20 @@
 using Kai_Engine.ENGINE.UserInterface.UIObjects;
+using Kai_Engine.ENGINE.Utils;
 using System.Numerics;
 using Raylib_cs;
-using Kai_Engine.ENGINE.Utils;
 
 namespace Kai_Engine.ENGINE.UserInterface
 {
     internal class UIManager
     {
-        ///########################################################################
+        ///######################################################################
         ///                                 TODO:
         ///                                 
         ///   UIObjects not rendering for some reason. 
         ///   Might have to do with adding a sprite as an additional 
-        ///   component
+        ///   component instead of it being part of the constructor
         /// 
-        ///########################################################################
+        ///######################################################################
 
         ///######################################################################
         ///                        Lists
@@ -53,8 +53,7 @@ namespace Kai_Engine.ENGINE.UserInterface
         {
             inventoryPosition = new Vector2(10, 10);
 
-            Item(inventoryPosition, 3);
-            ItemTwo(inventoryPosition, 3);
+            Item(inventoryPosition, 1);
         }
 
         public void Update()
@@ -110,37 +109,25 @@ namespace Kai_Engine.ENGINE.UserInterface
 
         private void Item(Vector2 position, int scale)
         {
-            UIObject inventoryBlock = new(position, scale, Layer.UI, true);
+            UIObject inventoryBlock = new UIObject(position, scale, Layer.UI, true)
+            {
+                IsActive = true
+            };
 
             UISprite sprite = new UISprite
             {
-                texture = _inventorySpriteTexture,
-                IsLoaded = true
+                IsLoaded = true,
+                Tag = "Exclamation Point Sprite",
+                Texture = _inventorySpriteTexture,
             };
 
             inventoryBlock.AddComponent(sprite);
+            KaiLogger.Warn("Object Component Count: " + inventoryBlock.Components.Count.ToString(), false);
 
             UIObjects.Add(inventoryBlock);
             UIObjectInterfaces.Add(inventoryBlock);
 
-            KaiLogger.Info("Sprite Loaded: " + sprite.IsLoaded.ToString(), false);
-        }
-
-        private void ItemTwo(Vector2 position, int scale)
-        {
-            UIObject inventoryBlock = new(position, scale, Layer.UI, true);
-
-            UISprite sprite = new UISprite
-            {
-                texture = _inventorySpriteTexture,
-                IsLoaded = true
-            };
-
-            inventoryBlock.AddComponent(sprite);
-
-            UIObjects.Add(inventoryBlock);
-            UIObjectInterfaces.Add(inventoryBlock);
-
+            KaiLogger.Info("Sprite Tag: " + sprite.Tag, false);
             KaiLogger.Info("Sprite Loaded: " + sprite.IsLoaded.ToString(), false);
         }
     }

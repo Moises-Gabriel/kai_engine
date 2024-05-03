@@ -1,12 +1,12 @@
-﻿using ImGuiNET;
-using Kai_Engine.ENGINE;
-using Kai_Engine.ENGINE.Components;
+﻿using Kai_Engine.ENGINE.Components;
+using Kai_Engine.GAME.Management;
 using Kai_Engine.ENGINE.Entities;
 using Kai_Engine.ENGINE.Utils;
-using Kai_Engine.GAME.Management;
-using Raylib_cs;
-using rlImGui_cs;
+using Kai_Engine.ENGINE;
 using System.Numerics;
+using rlImGui_cs;
+using Raylib_cs;
+using ImGuiNET;
 
 namespace Kai_Engine.EDITOR
 {
@@ -108,6 +108,8 @@ namespace Kai_Engine.EDITOR
 
                 ImGui.SeparatorText("Camera");
                 ImGui.Checkbox("Show Deadzone", ref _showDeadZone);
+                ImGui.PushItemWidth(50); //Set input field size
+                ImGui.InputInt2("DeadZone Scale", ref eManager.Camera.DeadZoneScale.X); //not sure why this still affects the Y axis lol
                 ImGui.PushItemWidth(50); //Set input field size
                 ImGui.DragFloat("Zoom", ref eManager.Camera.RayCamera.Zoom);
                 SeparatedSpacer();
@@ -238,11 +240,12 @@ namespace Kai_Engine.EDITOR
         private void DrawCameraDeadzone(EntityManager eManager, Vector2 screenSize)
         {
             // Define the deadzone in world space, not screen space
-            float deadZoneWidth = screenSize.X / 4;
-            float deadZoneHeight = screenSize.Y / 4;
+            int deadZoneWidth = (int)screenSize.X / eManager.Camera.DeadZoneScale.X;
+            int deadZoneHeight = (int)screenSize.Y / eManager.Camera.DeadZoneScale.Y;
 
             // Adjust the deadzone position relative to the camera target
-            Vector2 deadZonePos = new Vector2(
+            Vector2 deadZonePos = new Vector2
+            (
                 eManager.Camera.RayCamera.Target.X - deadZoneWidth / 2,
                 eManager.Camera.RayCamera.Target.Y - deadZoneHeight / 2
             );
@@ -251,7 +254,8 @@ namespace Kai_Engine.EDITOR
             Vector2 deadZoneScreenPos = KaiMath.WorldToScreen(deadZonePos, eManager.Camera.RayCamera);
 
             // Calculate the deadzone rectangle in screen space
-            Rectangle deadZone = new Rectangle(
+            Rectangle deadZone = new Rectangle
+            (
                 deadZoneScreenPos.X,
                 deadZoneScreenPos.Y,
                 deadZoneWidth * eManager.Camera.RayCamera.Zoom,  // Scale width by the Camera.RayCamera's zoom level
@@ -273,11 +277,11 @@ namespace Kai_Engine.EDITOR
         {
             foreach (var gameObject in eManager.AllObjects)
             {
-                if (gameObject.IsActive)
+                if (gameObject != null && gameObject.IsActive)
                 {
                     //Grab wall's components
-                    kTransform objectTransform = gameObject.GetComponent<kTransform>();
-                    kCollider objectCollider = gameObject.GetComponent<kCollider>();
+                    kTransform? objectTransform = gameObject.GetComponent<kTransform>();
+                    kCollider? objectCollider = gameObject.GetComponent<kCollider>();
 
                     //Determine wall's collider size
                     Vector2 otherWorldPos = new Vector2(objectTransform.position.X, objectTransform.position.Y);

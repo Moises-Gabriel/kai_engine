@@ -8,6 +8,7 @@ namespace Kai_Engine.ENGINE.Systems
     public class Camera
     {
         public Camera2D RayCamera;
+        public Vector2Int DeadZoneScale = new(3, 4);
 
         public void Start()
         {
@@ -19,8 +20,8 @@ namespace Kai_Engine.ENGINE.Systems
         public void Update(ref Camera2D camera, kTransform playerPosition, Vector2 screenSize)
         {
             //Define the deadzone
-            int deadZoneWidth = (int)screenSize.X / 4;  //Deadzone width is one-fourth of the screen width
-            int deadZoneHeight = (int)screenSize.Y / 4;
+            int deadZoneWidth = (int)screenSize.X / (int)DeadZoneScale.X;
+            int deadZoneHeight = (int)screenSize.Y / (int)DeadZoneScale.Y;
 
             Rectangle deadZone = new Rectangle
             (
@@ -49,7 +50,7 @@ namespace Kai_Engine.ENGINE.Systems
                 }
                 else if (playerPosition.position.X > deadZone.X + deadZone.Width)
                 {
-                    camera.Target.X = KaiMath.Lerp(camera.Target.X, playerPosition.position.X - (deadZone.Width / 2), smoothFactor);
+                    camera.Target.X = KaiMath.Lerp(camera.Target.X, 17 + playerPosition.position.X - (deadZone.Width / 2), smoothFactor);
                 }
 
                 //Determine if player is outside the deadzone vertically

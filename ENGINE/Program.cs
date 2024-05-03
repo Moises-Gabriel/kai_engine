@@ -1,8 +1,8 @@
-﻿using Kai_Engine.GAME.Management;
+﻿using Kai_Engine.ENGINE.UserInterface;
+using Kai_Engine.GAME.Management;
 using Kai_Engine.ENGINE.Utils;
 using Kai_Engine.EDITOR;
 using Raylib_cs;
-using Kai_Engine.ENGINE.UserInterface;
 
 namespace Kai_Engine.ENGINE
 {
@@ -12,8 +12,8 @@ namespace Kai_Engine.ENGINE
         private const string _engineVersion = "0.0.1";
         private const string _gameName = "Down & Down";
 
-        internal static int MapWidth = 640;
-        internal static int MapHeight = 360;
+        internal static int MapWidth = 1280;
+        internal static int MapHeight = 720;
 
         //Editor
         private const bool _editable = true;
@@ -45,6 +45,7 @@ namespace Kai_Engine.ENGINE
             ///######################################################################
             entityManager.Start();
             uiManager.Start();
+
             if (_editable)
                 kaiEditor.Start(entityManager);
 
@@ -57,21 +58,22 @@ namespace Kai_Engine.ENGINE
                 ///######################################################################
                 entityManager.Update();
                 uiManager.Update();
+
                 if (_editable)
                     kaiEditor.Update(entityManager);
-
                 ///######################################################################
                 ///                             Draw
                 ///######################################################################
                 Raylib.BeginDrawing();
-                Raylib.BeginMode2D(entityManager.Camera.RayCamera);
 
+                //Mode2D allows for RayCamera to work
+                Raylib.BeginMode2D(entityManager.Camera.RayCamera);
                 Raylib.ClearBackground(Color.Black);
                 entityManager.Draw();
-
                 Raylib.EndMode2D();
 
                 uiManager.Draw();
+
                 if (_editable)
                     kaiEditor.Draw(entityManager);
 

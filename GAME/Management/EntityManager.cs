@@ -49,7 +49,7 @@ namespace Kai_Engine.GAME.Management
         public bool PlayerCreated = false;
 
         //Camera
-        public Camera Camera;
+        public Camera? Camera;
         #endregion
 
         //Gameplay
@@ -92,7 +92,7 @@ namespace Kai_Engine.GAME.Management
             ///######################################################################
             ///                          Entity Movement
             ///######################################################################
-            if (_eMovement != null)
+            if (player != null && _eMovement != null)
             {
                 _eMovement.CheckCollision(this, player);
 
@@ -137,7 +137,6 @@ namespace Kai_Engine.GAME.Management
             player.AddComponent(playerCollider);
 
             Entities.Add(player);
-            //AllObjects.Add(player); 
         }
 
         public void AddItem(Vector2 spawnPoint)
@@ -180,15 +179,17 @@ namespace Kai_Engine.GAME.Management
 
         void DrunkardsWalk(int maxSteps)
         {
-            int tileSize = 16;
+            //Due to sprites being equal in size, using a random sprite's (floor) height is fine as a basis for all sprites
+            int tileSize = _floorSprite.Height;
+            int tileOffset = tileSize + 1;
 
             KaiLogger.Info($"Placing Floors", false);
 
             //Place floors
             int floorCounter = 0;
-            for (int x = 0; x < Program.MapWidth; x += (tileSize + 1))
+            for (int x = 0; x < Program.MapWidth; x += tileOffset)
             {
-                for (int y = 0; y < Program.MapHeight; y += (tileSize + 1))
+                for (int y = 0; y < Program.MapHeight; y += tileOffset)
                 {
                     floorCounter++;
                     GameObject floor = new GameObject(_floorSprite, new Vector2(x, y), Layer.Floor, $"Floor_{floorCounter}", true);
@@ -197,7 +198,6 @@ namespace Kai_Engine.GAME.Management
             }
 
             KaiLogger.Info($"Starting Walk", false);
-
 
 
             /* --- Drunkard's Walk Algorithm --- */
@@ -217,8 +217,8 @@ namespace Kai_Engine.GAME.Management
                 (int dx, int dy) direction = directions[random.Next(0, directions.GetLength(0))];
 
                 //move to new position
-                int newX = (int)currentPos.X + direction.dx * (tileSize + 1);
-                int newY = (int)currentPos.Y + direction.dy * (tileSize + 1);
+                int newX = (int)currentPos.X + direction.dx * tileOffset;
+                int newY = (int)currentPos.Y + direction.dy * tileOffset;
 
                 //if new position is within grid, add wall
                 if (newX >= 0 && newX <= Program.MapWidth && newY >= 0 && newY <= Program.MapHeight)
@@ -262,9 +262,9 @@ namespace Kai_Engine.GAME.Management
             }
 
             //Now loop through entire map and add clear spaces to list of available spawn points
-            for (int x = 0; x < Program.MapWidth; x += tileSize + 1)
+            for (int x = 0; x < Program.MapWidth; x += tileOffset)
             {
-                for (int y = 0; y < Program.MapHeight; y += tileSize + 1)
+                for (int y = 0; y < Program.MapHeight; y += tileOffset)
                 {
                     Vector2 cellPosition = new Vector2(x, y);
                     bool isTaken = false;
@@ -293,7 +293,7 @@ namespace Kai_Engine.GAME.Management
             freePositions.Remove(playerSpawnPoint); //remove player spawn point from available positions
 
             //Spawn items at free locations
-            int spawnCount = 5;
+            int spawnCount = 15;
             for (int i = 0; i < spawnCount; i++)
             {
                 Vector2 itemSpawnPoints = freePositions[random.Next(0, freePositions.Count)];

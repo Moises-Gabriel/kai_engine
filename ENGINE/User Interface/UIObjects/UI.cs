@@ -1,4 +1,5 @@
 using System.Numerics;
+using Kai_Engine.ENGINE.Utils;
 using Raylib_cs;
 
 namespace Kai_Engine.ENGINE.UserInterface.UIObjects
@@ -6,13 +7,13 @@ namespace Kai_Engine.ENGINE.UserInterface.UIObjects
     public interface IUIObject { void Draw(); }
     public class UIObject : IUIObject
     {
-        public bool IsActive = true;
+        public bool IsActive = false;
 
         //Components List
         public List<IUIComponent> Components { get; } = new();
 
         //Default Components
-        public UISprite Sprite { get; set; } = new();
+        public UISprite? Sprite { get; set; } = new();
         public UITransform Transform { get; set; }
         public UIScale Scale { get; set; }
         public Layer Layer { get; set; }
@@ -52,9 +53,10 @@ namespace Kai_Engine.ENGINE.UserInterface.UIObjects
 
         public void Draw()
         {
-            if (IsActive && Sprite.IsLoaded)
+            if (IsActive && Sprite != null)
             {
-                Raylib.DrawTextureEx(Sprite.texture, new Vector2((int)Transform.position.X, (int)Transform.position.Y),
+                KaiLogger.Info("Is Loaded: " + Sprite.IsLoaded.ToString(), false);
+                Raylib.DrawTextureEx(Sprite.Texture, new Vector2((int)Transform.position.X, (int)Transform.position.Y),
                                     0, Scale.scale, Color.White);
             }
         }

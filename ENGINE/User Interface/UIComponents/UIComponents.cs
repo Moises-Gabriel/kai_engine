@@ -8,33 +8,15 @@ namespace Kai_Engine.ENGINE.UserInterface
 
     ///########################################################################
     ///                                 TODO:
+    ///     Nothing for now                                 
     ///                        
-    ///   - Needs TEXT component
-    /// 
     ///########################################################################
     public class UISprite : IUIComponent
     {
-        public Texture2D texture;
-        public string? filePath;
+        public string? Tag = "";
+        public Texture2D Texture;
+        public string? FilePath = "";
         public bool IsLoaded = false;
-
-        private UIObject? _uIObject;
-        public void SetParentObject(UIObject parentUIObject)
-        {
-            _uIObject = parentUIObject;
-        }
-        public UIObject uIObject
-        {
-            get { return _uIObject; }
-        }
-    }
-
-    public class UIText : IUIComponent
-    {
-        public void DrawText(string text, Vector2 position, int fontSize, Color color)
-        {
-            Raylib.DrawText(text, (int)position.X, (int)position.Y, fontSize, color);
-        }
 
         private UIObject? _uIObject;
         public void SetParentObject(UIObject parentUIObject)
