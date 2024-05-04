@@ -31,7 +31,7 @@ namespace Kai_Engine.ENGINE
 
         //Bools
         private const bool _editable = true;
-        private const bool _textureMode = false;
+        internal static bool TextureMode = true;
 
         static void Main()
         {
@@ -47,7 +47,7 @@ namespace Kai_Engine.ENGINE
             Kai_Editor kaiEditor = new();
 
             Raylib.InitWindow(ScreenWidth, ScreenHeight, _engineName);
-            Raylib.SetTargetFPS(120);
+            Raylib.SetTargetFPS(60);
 
             _renderTexture = Raylib.LoadRenderTexture(MapWidth, MapHeight);
 
@@ -79,7 +79,7 @@ namespace Kai_Engine.ENGINE
                 ///                             Draw
                 ///######################################################################
 
-                if (_textureMode)
+                if (TextureMode)
                 {
                     Raylib.BeginTextureMode(_renderTexture);
                     Raylib.ClearBackground(Color.Black);
@@ -94,7 +94,7 @@ namespace Kai_Engine.ENGINE
                     Raylib.EndTextureMode();
 
                     Raylib.BeginDrawing();
-                    Raylib.ClearBackground(Color.Gray);
+                    Raylib.ClearBackground(Color.DarkGray);
 
                     Raylib.DrawTextureRec(_renderTexture.Texture, new Rectangle(0, 0, _renderTexture.Texture.Width, -_renderTexture.Texture.Height),
                                           new Vector2(ScreenWidth / 4, ScreenHeight / 4), Color.White);
@@ -107,7 +107,7 @@ namespace Kai_Engine.ENGINE
                 else
                 {
                     Raylib.BeginDrawing();
-                    Raylib.ClearBackground(Color.Gray);
+                    Raylib.ClearBackground(Color.Black);
 
                     Raylib.BeginMode2D(entityManager.Camera.RayCamera);
 

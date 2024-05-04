@@ -63,8 +63,8 @@ namespace Kai_Engine.ENGINE.UserInterface
 
         public void Draw()
         {
-            //UIGroup();
-            //BlipGroup();
+            UIGroup();
+            BlipGroup();
             foreach (var item in UIObjectInterfaces)
             {
                 item.Draw();

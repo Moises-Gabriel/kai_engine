@@ -12,11 +12,14 @@ namespace Kai_Engine.EDITOR
 {
     internal class Kai_Editor
     {
-        ///########################################################################
+        ///######################################################################
         ///                                 FIXME:
-        ///   - Nothing for now
+        ///                                 
+        ///   - When using RenderTexture mode, mouse selection doesn't work due
+        ///   to discrepancy in mouse position to object position
         /// 
-        ///########################################################################
+        ///######################################################################
+
 
         ///######################################################################
         ///                        Mouse Variables
@@ -79,7 +82,6 @@ namespace Kai_Engine.EDITOR
 
         public void Draw(EntityManager eManager)
         {
-            Raylib.DrawFPS(Program.ScreenWidth - 80, Program.ScreenHeight / 16);
             DrawMouseCollider();
             DrawObjectColliders(eManager);
             DrawSelectionBox(new Vector2(_selectedObjectTransform.X, _selectedObjectTransform.Y),
@@ -92,11 +94,21 @@ namespace Kai_Engine.EDITOR
         ///######################################################################
         public void DrawGUI(EntityManager eManager)
         {
+            Raylib.DrawFPS(Program.ScreenWidth - 80, Program.ScreenHeight / 16);
+            //Raylib.DrawText(Raylib.GetFPS().ToString, Program.ScreenWidth - 80, Program.ScreenHeight / 16, 25, Color.Red);
+
             rlImGui.Begin();
 
             //Editor Window
-            if (ImGui.Begin("Kai Editor"))
+            if (ImGui.Begin("Kai Debug"))
             {
+                ///######################################################################
+                ///                             Rendering
+                ///######################################################################
+                ImGui.SeparatorText("Rendering Mode");
+                ImGui.Checkbox("Render Texture", ref Program.TextureMode);
+                SeparatedSpacer();
+
                 ///######################################################################
                 ///                             Camera
                 ///######################################################################
@@ -106,7 +118,7 @@ namespace Kai_Engine.EDITOR
                 ImGui.PushItemWidth(50); //Set input field size
                 ImGui.InputInt2("DeadZone Scale", ref eManager.Camera.DeadZoneScale.X); //not sure why this still affects the Y axis lol
                 ImGui.PushItemWidth(50); //Set input field size
-                ImGui.DragFloat("Zoom", ref eManager.Camera.RayCamera.Zoom);
+                ImGui.InputFloat("Zoom", ref eManager.Camera.RayCamera.Zoom);
                 SeparatedSpacer();
 
                 ///######################################################################
