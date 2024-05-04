@@ -255,7 +255,7 @@ namespace Kai_Engine.GAME.Management
                         //Add entities and transforms to list.
                         Entities.Add(walls);                          //List of IEntities
                         AllObjects.Add(walls);                        //List of All GameObjects
-                        WallObjects.Add(walls);                       //List of GameObjects
+                        WallObjects.Add(walls);                       //List of Wall GameObjects
                         takenPositions.Add(walls.Transform.position); //List of Vector2
                     }
                 }

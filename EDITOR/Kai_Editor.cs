@@ -31,7 +31,7 @@ namespace Kai_Engine.EDITOR
         private bool _showCollision = false;
         private bool _selectObject = false;
         private bool _showDeadZone = false;
-        bool debugOpen = false;
+        public bool DebugOpen = false;
 
         ///######################################################################
         ///                        Vectors
@@ -65,37 +65,32 @@ namespace Kai_Engine.EDITOR
         {
             DetectMouse(eManager);
 
-            if (Raylib.IsKeyPressed(KeyboardKey.Tab) && !debugOpen)
+            if (Raylib.IsKeyPressed(KeyboardKey.Tab) && !DebugOpen)
             {
                 KaiLogger.Info("Debug Open", false);
-                debugOpen = true;
+                DebugOpen = true;
             }
-            else if (Raylib.IsKeyPressed(KeyboardKey.Tab) && debugOpen)
+            else if (Raylib.IsKeyPressed(KeyboardKey.Tab) && DebugOpen)
             {
                 KaiLogger.Info("Debug Closed", false);
-                debugOpen = false;
+                DebugOpen = false;
             }
         }
 
         public void Draw(EntityManager eManager)
         {
-            Raylib.DrawFPS(Program.MapWidth - 80, Program.MapHeight / 16);
+            Raylib.DrawFPS(Program.ScreenWidth - 80, Program.ScreenHeight / 16);
             DrawMouseCollider();
             DrawObjectColliders(eManager);
             DrawSelectionBox(new Vector2(_selectedObjectTransform.X, _selectedObjectTransform.Y),
                              new Vector2(_selectedObjectTransform.Z, _selectedObjectTransform.W), eManager);
             DrawCameraDeadzone(eManager, new Vector2(Program.MapWidth, Program.MapHeight));
-
-            if (debugOpen)
-            {
-                DrawGUI(eManager);
-            }
         }
 
         ///######################################################################
         ///                            Drawing
         ///######################################################################
-        private void DrawGUI(EntityManager eManager)
+        public void DrawGUI(EntityManager eManager)
         {
             rlImGui.Begin();
 
@@ -181,6 +176,7 @@ namespace Kai_Engine.EDITOR
             Vector2 objectSize = new Vector2(16 * eManager.Camera.RayCamera.Zoom, 16 * eManager.Camera.RayCamera.Zoom);
             if (_showCollision)
             {
+                //Display collision box for player
                 if (eManager.player != null)
                 {
                     kCollider? playerCollider = eManager.player.GetComponent<kCollider>();
@@ -199,9 +195,9 @@ namespace Kai_Engine.EDITOR
                     }
                 }
 
+                //Display collision box for each wall
                 foreach (var wall in eManager.WallObjects)
                 {
-                    //Display collision box for each wall
                     if (wall.IsActive)
                     {
                         Vector2 wallWorldPos = new Vector2(wall.GetComponent<kTransform>().position.X, wall.GetComponent<kTransform>().position.Y);
@@ -210,6 +206,7 @@ namespace Kai_Engine.EDITOR
 
                 }
 
+                //Display collision box for each item
                 foreach (var item in eManager.ItemObjects)
                 {
                     //Display collision box for each wall
@@ -317,12 +314,6 @@ namespace Kai_Engine.EDITOR
                 }
             }
         }
-        private void SeparatedSpacer()
-        {
-            ImGui.Spacing();
-            ImGui.Separator();
-            ImGui.Spacing();
-        }
         private Vector4 Selected(Vector2 selectedObjectPosition, Vector2 selectedObjectSize)
         {
             return new Vector4(selectedObjectPosition.X, selectedObjectPosition.Y, selectedObjectSize.X, selectedObjectSize.Y);
@@ -330,6 +321,12 @@ namespace Kai_Engine.EDITOR
         private Vector4 GetMousePosition()
         {
             return new(Raylib.GetMousePosition().X - _mouseOffset, Raylib.GetMousePosition().Y - _mouseOffset, _mouseBoundSize, _mouseBoundSize);
+        }
+        private void SeparatedSpacer()
+        {
+            ImGui.Spacing();
+            ImGui.Separator();
+            ImGui.Spacing();
         }
     }
 }

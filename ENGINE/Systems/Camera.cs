@@ -50,7 +50,7 @@ namespace Kai_Engine.ENGINE.Systems
                 }
                 else if (playerPosition.position.X > deadZone.X + deadZone.Width)
                 {
-                    camera.Target.X = KaiMath.Lerp(camera.Target.X, 17 + playerPosition.position.X - (deadZone.Width / 2), smoothFactor);
+                    camera.Target.X = KaiMath.Lerp(camera.Target.X, playerPosition.position.X - (deadZone.Width / 2), smoothFactor);
                 }
 
                 //Determine if player is outside the deadzone vertically

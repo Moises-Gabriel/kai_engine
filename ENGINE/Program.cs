@@ -2,21 +2,36 @@
 using Kai_Engine.GAME.Management;
 using Kai_Engine.ENGINE.Utils;
 using Kai_Engine.EDITOR;
+using System.Numerics;
 using Raylib_cs;
 
 namespace Kai_Engine.ENGINE
 {
+    //NOTE: Layer hierarchy goes from bottom to top
+    public enum Layer
+    {
+        Floor,
+        Item,
+        Wall,
+        Player,
+        UI
+    }
     internal class Program
     {
         private const string _engineName = "Kai";
         private const string _engineVersion = "0.0.1";
         private const string _gameName = "Down & Down";
 
-        internal static int MapWidth = 1280;
-        internal static int MapHeight = 720;
+        internal static int ScreenWidth = 1280;
+        internal static int ScreenHeight = 720;
 
-        //Editor
+        internal static int MapWidth = 640;
+        internal static int MapHeight = 360;
+        private static RenderTexture2D _renderTexture;
+
+        //Bools
         private const bool _editable = true;
+        private const bool _textureMode = false;
 
         static void Main()
         {
@@ -31,11 +46,12 @@ namespace Kai_Engine.ENGINE
             UIManager uiManager = new();
             Kai_Editor kaiEditor = new();
 
-            Raylib.InitWindow(MapWidth, MapHeight, _engineName);
+            Raylib.InitWindow(ScreenWidth, ScreenHeight, _engineName);
             Raylib.SetTargetFPS(120);
 
-            if (_editable)
-                kaiEditor.Init();
+            _renderTexture = Raylib.LoadRenderTexture(MapWidth, MapHeight);
+
+            if (_editable) kaiEditor.Init();
 
             entityManager.Init();
             uiManager.Init();
@@ -46,8 +62,7 @@ namespace Kai_Engine.ENGINE
             entityManager.Start();
             uiManager.Start();
 
-            if (_editable)
-                kaiEditor.Start(entityManager);
+            if (_editable) kaiEditor.Start(entityManager);
 
             //Main Game Loop
             while (!Raylib.WindowShouldClose())
@@ -59,25 +74,53 @@ namespace Kai_Engine.ENGINE
                 entityManager.Update();
                 uiManager.Update();
 
-                if (_editable)
-                    kaiEditor.Update(entityManager);
+                if (_editable) kaiEditor.Update(entityManager);
                 ///######################################################################
                 ///                             Draw
                 ///######################################################################
-                Raylib.BeginDrawing();
 
-                //Mode2D allows for RayCamera to work
-                Raylib.BeginMode2D(entityManager.Camera.RayCamera);
-                Raylib.ClearBackground(Color.Black);
-                entityManager.Draw();
-                Raylib.EndMode2D();
+                if (_textureMode)
+                {
+                    Raylib.BeginTextureMode(_renderTexture);
+                    Raylib.ClearBackground(Color.Black);
+                    Raylib.BeginMode2D(entityManager.Camera.RayCamera);
 
-                uiManager.Draw();
+                    entityManager.Draw();
 
-                if (_editable)
-                    kaiEditor.Draw(entityManager);
+                    Raylib.EndMode2D();
 
-                Raylib.EndDrawing();
+                    if (_editable) kaiEditor.Draw(entityManager);
+
+                    Raylib.EndTextureMode();
+
+                    Raylib.BeginDrawing();
+                    Raylib.ClearBackground(Color.Gray);
+
+                    Raylib.DrawTextureRec(_renderTexture.Texture, new Rectangle(0, 0, _renderTexture.Texture.Width, -_renderTexture.Texture.Height),
+                                          new Vector2(ScreenWidth / 4, ScreenHeight / 4), Color.White);
+
+                    uiManager.Draw();
+                    if (kaiEditor.DebugOpen) kaiEditor.DrawGUI(entityManager);
+
+                    Raylib.EndDrawing();
+                }
+                else
+                {
+                    Raylib.BeginDrawing();
+                    Raylib.ClearBackground(Color.Gray);
+
+                    Raylib.BeginMode2D(entityManager.Camera.RayCamera);
+
+                    entityManager.Draw();
+
+                    Raylib.EndMode2D();
+
+                    if (_editable) kaiEditor.Draw(entityManager);
+                    uiManager.Draw();
+                    if (kaiEditor.DebugOpen && _editable) kaiEditor.DrawGUI(entityManager);
+
+                    Raylib.EndDrawing();
+                }
             }
 
             //Cleanup
@@ -85,3 +128,5 @@ namespace Kai_Engine.ENGINE
         }
     }
 }
+
+
