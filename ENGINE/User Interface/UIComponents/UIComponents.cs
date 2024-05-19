@@ -1,6 +1,7 @@
 using Kai_Engine.ENGINE.UserInterface.UIObjects;
 using System.Numerics;
 using Raylib_cs;
+using Kai_Engine.ENGINE.Utils;
 
 namespace Kai_Engine.ENGINE.UserInterface
 {
@@ -14,23 +15,31 @@ namespace Kai_Engine.ENGINE.UserInterface
     public class UISprite : IUIComponent
     {
         public string? Tag = "";
-        public Texture2D Texture;
-        public string? FilePath = "";
+        public Texture2D Texture = new();
+        public string? FilePath;
         public bool IsLoaded = false;
 
-        private UIObject? _uIObject;
+        private UIObject? _uIObject = null;
         public void SetParentObject(UIObject parentUIObject)
         {
             _uIObject = parentUIObject;
         }
-        public UIObject uIObject
+        public UIObject _UIObject
         {
-            get { return _uIObject; }
+            get { return _UIObject; }
+        }
+
+        public void PrintInfo()
+        {
+            KaiLogger.Info($"Tag: {Tag}", false);
+            KaiLogger.Info($"FilePath: {FilePath}", false);
+            KaiLogger.Info($"IsLoaded: {IsLoaded}", false);
         }
     }
 
     public class UITransform : IUIComponent
     {
+
         public Vector2 position;
 
         private UIObject? _uIObject;

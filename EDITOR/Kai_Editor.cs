@@ -95,20 +95,12 @@ namespace Kai_Engine.EDITOR
         public void DrawGUI(EntityManager eManager)
         {
             Raylib.DrawFPS(Program.ScreenWidth - 80, Program.ScreenHeight / 16);
-            //Raylib.DrawText(Raylib.GetFPS().ToString, Program.ScreenWidth - 80, Program.ScreenHeight / 16, 25, Color.Red);
 
             rlImGui.Begin();
 
             //Editor Window
             if (ImGui.Begin("Kai Debug"))
             {
-                ///######################################################################
-                ///                             Rendering
-                ///######################################################################
-                ImGui.SeparatorText("Rendering Mode");
-                ImGui.Checkbox("Render Texture", ref Program.TextureMode);
-                SeparatedSpacer();
-
                 ///######################################################################
                 ///                             Camera
                 ///######################################################################

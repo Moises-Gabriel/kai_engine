@@ -53,9 +53,9 @@ namespace Kai_Engine.ENGINE.UserInterface.UIObjects
 
         public void Draw()
         {
+            KaiLogger.Info($"IsLoaded {Sprite.IsLoaded}", false);
             if (IsActive && Sprite != null)
             {
-                KaiLogger.Info("Is Loaded: " + Sprite.IsLoaded.ToString(), false);
                 Raylib.DrawTextureEx(Sprite.Texture, new Vector2((int)Transform.position.X, (int)Transform.position.Y),
                                     0, Scale.scale, Color.White);
             }

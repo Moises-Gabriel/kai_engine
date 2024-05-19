@@ -25,18 +25,21 @@ namespace Kai_Engine.ENGINE
         internal static int ScreenWidth = 1280;
         internal static int ScreenHeight = 720;
 
-        internal static int MapWidth = 640;
-        internal static int MapHeight = 360;
+        internal static int MapWidth = 1280;
+        internal static int MapHeight = 720;
+
+        internal static int RenderTextureWidth = 640;
+        public static int RenderTextureHeight = 360;
+
         private static RenderTexture2D _renderTexture;
 
         //Bools
         private const bool _editable = true;
-        internal static bool TextureMode = true;
 
         static void Main()
         {
             //Engine Info
-            KaiLogger.Important($"{_engineName}: [v{_engineVersion}]", false);
+            KaiLogger.Important($"{_engineName}: [v:{_engineVersion}]", false);
             KaiLogger.Important($"Game: {_gameName}", false);
 
             ///######################################################################
@@ -49,7 +52,7 @@ namespace Kai_Engine.ENGINE
             Raylib.InitWindow(ScreenWidth, ScreenHeight, _engineName);
             Raylib.SetTargetFPS(60);
 
-            _renderTexture = Raylib.LoadRenderTexture(MapWidth, MapHeight);
+            _renderTexture = Raylib.LoadRenderTexture(RenderTextureWidth, RenderTextureHeight);
 
             if (_editable) kaiEditor.Init();
 
@@ -79,48 +82,20 @@ namespace Kai_Engine.ENGINE
                 ///                             Draw
                 ///######################################################################
 
-                if (TextureMode)
-                {
-                    Raylib.BeginTextureMode(_renderTexture);
-                    Raylib.ClearBackground(Color.Black);
-                    Raylib.BeginMode2D(entityManager.Camera.RayCamera);
+                Raylib.BeginDrawing();
+                Raylib.ClearBackground(Color.Black);
 
-                    entityManager.Draw();
+                Raylib.BeginMode2D(entityManager.Camera.RayCamera);
 
-                    Raylib.EndMode2D();
+                entityManager.Draw();
 
-                    if (_editable) kaiEditor.Draw(entityManager);
+                Raylib.EndMode2D();
 
-                    Raylib.EndTextureMode();
+                uiManager.Draw();
+                if (_editable) kaiEditor.Draw(entityManager);
+                if (kaiEditor.DebugOpen && _editable) kaiEditor.DrawGUI(entityManager);
 
-                    Raylib.BeginDrawing();
-                    Raylib.ClearBackground(Color.DarkGray);
-
-                    Raylib.DrawTextureRec(_renderTexture.Texture, new Rectangle(0, 0, _renderTexture.Texture.Width, -_renderTexture.Texture.Height),
-                                          new Vector2(ScreenWidth / 4, ScreenHeight / 4), Color.White);
-
-                    uiManager.Draw();
-                    if (kaiEditor.DebugOpen) kaiEditor.DrawGUI(entityManager);
-
-                    Raylib.EndDrawing();
-                }
-                else
-                {
-                    Raylib.BeginDrawing();
-                    Raylib.ClearBackground(Color.Black);
-
-                    Raylib.BeginMode2D(entityManager.Camera.RayCamera);
-
-                    entityManager.Draw();
-
-                    Raylib.EndMode2D();
-
-                    if (_editable) kaiEditor.Draw(entityManager);
-                    uiManager.Draw();
-                    if (kaiEditor.DebugOpen && _editable) kaiEditor.DrawGUI(entityManager);
-
-                    Raylib.EndDrawing();
-                }
+                Raylib.EndDrawing();
             }
 
             //Cleanup

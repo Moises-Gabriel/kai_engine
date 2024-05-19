@@ -54,6 +54,12 @@ namespace Kai_Engine.ENGINE.UserInterface
             inventoryPosition = new Vector2(10, 10);
 
             Item(inventoryPosition, 1);
+
+            KaiLogger.Info("UIObjects: " + UIObjects.Count.ToString(), false);
+            KaiLogger.Info("Components in UIObject: ", false);
+            foreach (var uiObj in UIObjects)
+                foreach (var component in uiObj.Components)
+                    KaiLogger.Info(component.ToString(), false);
         }
 
         public void Update()
@@ -63,9 +69,11 @@ namespace Kai_Engine.ENGINE.UserInterface
 
         public void Draw()
         {
-            UIGroup();
-            BlipGroup();
-            foreach (var item in UIObjectInterfaces)
+            // UIGroup();
+            // BlipGroup();
+
+            //TODO: This is not working
+            foreach (var item in UIObjects)
             {
                 item.Draw();
             }
@@ -109,26 +117,22 @@ namespace Kai_Engine.ENGINE.UserInterface
 
         private void Item(Vector2 position, int scale)
         {
-            UIObject inventoryBlock = new UIObject(position, scale, Layer.UI, true)
-            {
-                IsActive = true
-            };
-
             UISprite sprite = new UISprite
             {
                 IsLoaded = true,
                 Tag = "Exclamation Point Sprite",
+                FilePath = _inventorySpritePath,
                 Texture = _inventorySpriteTexture,
             };
 
+            sprite.PrintInfo();
+
+            UIObject inventoryBlock = new UIObject(position, scale, Layer.UI, true);
+
             inventoryBlock.AddComponent(sprite);
-            KaiLogger.Warn("Object Component Count: " + inventoryBlock.Components.Count.ToString(), false);
 
             UIObjects.Add(inventoryBlock);
             UIObjectInterfaces.Add(inventoryBlock);
-
-            KaiLogger.Info("Sprite Tag: " + sprite.Tag, false);
-            KaiLogger.Info("Sprite Loaded: " + sprite.IsLoaded.ToString(), false);
         }
     }
 }
