@@ -25,13 +25,10 @@ namespace Kai_Engine.ENGINE
         internal static int ScreenWidth = 1280;
         internal static int ScreenHeight = 720;
 
-        internal static int MapWidth = 1280;
-        internal static int MapHeight = 720;
+        internal static int MapWidth = 2560;
+        internal static int MapHeight = 1440;
 
-        internal static int RenderTextureWidth = 640;
-        public static int RenderTextureHeight = 360;
-
-        private static RenderTexture2D _renderTexture;
+        internal static int cellSize = 32; //update this to match sprite size
 
         //Bools
         private const bool _editable = true;
@@ -51,8 +48,6 @@ namespace Kai_Engine.ENGINE
 
             Raylib.InitWindow(ScreenWidth, ScreenHeight, _engineName);
             Raylib.SetTargetFPS(60);
-
-            _renderTexture = Raylib.LoadRenderTexture(RenderTextureWidth, RenderTextureHeight);
 
             if (_editable) kaiEditor.Init();
 

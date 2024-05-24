@@ -13,13 +13,14 @@ namespace Kai_Engine.ENGINE.UserInterface.UIObjects
         public List<IUIComponent> Components { get; } = new();
 
         //Default Components
-        public UISprite? Sprite { get; set; } = new();
+        public UISprite? Sprite { get; set; }
         public UITransform Transform { get; set; }
         public UIScale Scale { get; set; }
         public Layer Layer { get; set; }
 
-        public UIObject(Vector2 position, float scale, Layer layer, bool isActive)
+        public UIObject(Texture2D texture, Vector2 position, float scale, Layer layer, bool isActive)
         {
+            Sprite = new UISprite { Texture = texture };
             Transform = new UITransform { position = position };
             Scale = new UIScale { scale = scale };
             Layer = layer;
@@ -53,7 +54,6 @@ namespace Kai_Engine.ENGINE.UserInterface.UIObjects
 
         public void Draw()
         {
-            KaiLogger.Info($"IsLoaded {Sprite.IsLoaded}", false);
             if (IsActive && Sprite != null)
             {
                 Raylib.DrawTextureEx(Sprite.Texture, new Vector2((int)Transform.position.X, (int)Transform.position.Y),

@@ -46,20 +46,12 @@ namespace Kai_Engine.ENGINE.UserInterface
 
             //Initialize UI sprites
             _inventorySpriteTexture = Raylib.LoadTexture(_inventorySpritePath);
-
         }
 
         public void Start()
         {
             inventoryPosition = new Vector2(10, 10);
-
-            Item(inventoryPosition, 1);
-
-            KaiLogger.Info("UIObjects: " + UIObjects.Count.ToString(), false);
-            KaiLogger.Info("Components in UIObject: ", false);
-            foreach (var uiObj in UIObjects)
-                foreach (var component in uiObj.Components)
-                    KaiLogger.Info(component.ToString(), false);
+            Item(inventoryPosition, 4);
         }
 
         public void Update()
@@ -69,10 +61,9 @@ namespace Kai_Engine.ENGINE.UserInterface
 
         public void Draw()
         {
-            // UIGroup();
-            // BlipGroup();
+            UIGroup();
+            BlipGroup();
 
-            //TODO: This is not working
             foreach (var item in UIObjects)
             {
                 item.Draw();
@@ -82,10 +73,8 @@ namespace Kai_Engine.ENGINE.UserInterface
         //Inventory display
         public void UIGroup()
         {
-            UIBlock(new Vector2(inventoryPosition.X, inventoryPosition.Y), 2, 3);
-            UIBlock(new Vector2(inventoryPosition.X + 50, inventoryPosition.Y), 2, 3);
-            UIBlock(new Vector2(inventoryPosition.X + 100, inventoryPosition.Y), 2, 3);
-            UIBlock(new Vector2(inventoryPosition.X + 150, inventoryPosition.Y), 2, 3);
+            UIBlock(new Vector2(inventoryPosition.X, inventoryPosition.Y), 2, 4);
+            UIBlock(new Vector2(inventoryPosition.X + (16 * 4) + 10, inventoryPosition.Y), 2, 4);
         }
 
         public void BlipGroup()
@@ -127,7 +116,7 @@ namespace Kai_Engine.ENGINE.UserInterface
 
             sprite.PrintInfo();
 
-            UIObject inventoryBlock = new UIObject(position, scale, Layer.UI, true);
+            UIObject inventoryBlock = new UIObject(sprite.Texture, position, scale, Layer.UI, true);
 
             inventoryBlock.AddComponent(sprite);
 

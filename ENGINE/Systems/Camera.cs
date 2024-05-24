@@ -10,11 +10,12 @@ namespace Kai_Engine.ENGINE.Systems
         public Camera2D RayCamera;
         public Vector2Int DeadZoneScale = new(3, 4);
 
-        public void Start()
+        public void Start(kTransform playerTransform)
         {
-            RayCamera.Offset = new Vector2(Program.MapWidth / 2, Program.MapHeight / 2);
+            RayCamera.Offset = new Vector2(Program.MapWidth / 4, Program.MapHeight / 4);
+            RayCamera.Target = playerTransform.position;
             RayCamera.Rotation = 0;
-            RayCamera.Zoom = 2.0f;
+            RayCamera.Zoom = 1.0f;
         }
 
         public void Update(ref Camera2D camera, kTransform playerPosition, Vector2 screenSize)

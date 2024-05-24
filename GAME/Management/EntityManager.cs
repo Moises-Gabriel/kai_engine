@@ -22,8 +22,6 @@ namespace Kai_Engine.GAME.Management
         #region Entity Variables
         private string _basePath = Environment.CurrentDirectory;
 
-
-
         //List of all entities/GameObjects in the game
         public List<IEntity> Entities = new();
         public List<GameObject> AllObjects = new();
@@ -35,17 +33,17 @@ namespace Kai_Engine.GAME.Management
 
         //Wall Entity                         
         public List<GameObject> WallObjects = new();
-        private string? _wallSpritePath;
-        private Texture2D _wallSprite = new();
+        private List<string>? _wallSpritePath = new();
+        private List<Texture2D> _wallSprite = new();
 
         //Floor Entity                        
-        private string? _floorSpritePath;
-        private Texture2D _floorSprite = new();
+        private List<string>? _floorSpritePath = new();
+        private List<Texture2D> _floorSprite = new();
 
         //Player Entity                       
         public GameObject? player;
-        private string? _playerSpritePath;
-        private Texture2D _playerSprite = new();
+        private List<string>? _playerSpritePath = new();
+        private List<Texture2D> _playerSprite = new();
         public bool PlayerCreated = false;
 
         //Camera
@@ -57,17 +55,42 @@ namespace Kai_Engine.GAME.Management
 
         public void Init()
         {
+            KaiLogger.Info("Wall Path Count: " + _wallSpritePath.Count.ToString(), true);
             //Set sprite paths
             _itemSpritePath = Path.Combine(_basePath, "GAME/Assets/item_sprite.png");
-            _wallSpritePath = Path.Combine(_basePath, "GAME/Assets/wall_sprite.png");
-            _floorSpritePath = Path.Combine(_basePath, "GAME/Assets/floor_sprite.png");
-            _playerSpritePath = Path.Combine(_basePath, "GAME/Assets/player_sprite.png");
+
+            string wallSpritePath1 = Path.Combine(_basePath, "GAME/Assets/wall_sprite.png");
+            string wallSpritePath2 = Path.Combine(_basePath, "GAME/Assets/wall_sprite_2.png");
+            _wallSpritePath.Add(wallSpritePath1);
+            _wallSpritePath.Add(wallSpritePath2);
+
+            string floorSpritePath1 = Path.Combine(_basePath, "GAME/Assets/floor_sprite.png");
+            string floorSpritePath2 = Path.Combine(_basePath, "GAME/Assets/floor_sprite_2.png");
+            _floorSpritePath.Add(floorSpritePath1);
+            _floorSpritePath.Add(floorSpritePath2);
+
+            string playerSpritePath1 = Path.Combine(_basePath, "GAME/Assets/player_sprite.png");
+            string playerSpritePath2 = Path.Combine(_basePath, "GAME/Assets/player_sprite_2.png");
+            _playerSpritePath.Add(playerSpritePath1);
+            _playerSpritePath.Add(playerSpritePath2);
 
             //Initialize entity sprites
             _itemSprite = Raylib.LoadTexture(_itemSpritePath);
-            _floorSprite = Raylib.LoadTexture(_floorSpritePath);
-            _wallSprite = Raylib.LoadTexture(_wallSpritePath);
-            _playerSprite = Raylib.LoadTexture(_playerSpritePath);
+
+            Texture2D wallSprite1 = Raylib.LoadTexture(_wallSpritePath[0]);
+            Texture2D wallSprite2 = Raylib.LoadTexture(_wallSpritePath[1]);
+            _wallSprite.Add(wallSprite1);
+            _wallSprite.Add(wallSprite2);
+
+            Texture2D floorSprite1 = Raylib.LoadTexture(_floorSpritePath[0]);
+            Texture2D floorSprite2 = Raylib.LoadTexture(_floorSpritePath[1]);
+            _floorSprite.Add(floorSprite1);
+            _floorSprite.Add(floorSprite2);
+
+            Texture2D playerSprite1 = Raylib.LoadTexture(_playerSpritePath[0]);
+            Texture2D playerSprite2 = Raylib.LoadTexture(_playerSpritePath[1]);
+            _playerSprite.Add(playerSprite1);
+            _playerSprite.Add(playerSprite2);
 
             //Initialize Camera
             Camera = new Camera();
@@ -82,9 +105,7 @@ namespace Kai_Engine.GAME.Management
             GenerateLevel();
 
             //Set target after player has spawned
-            Camera.Start();
-            Camera.RayCamera.Target = player.Transform.position;
-
+            Camera.Start(player.Transform);
         }
 
         public void Update()
@@ -118,7 +139,7 @@ namespace Kai_Engine.GAME.Management
 
         public void AddPlayer(Vector2 spawnPoint)
         {
-            GameObject _player = new(_playerSprite, spawnPoint, Layer.Player, "Player", true);
+            GameObject _player = new(_playerSprite[0], spawnPoint, Layer.Player, "Player", true);
             player = _player;
 
             //Add Components
@@ -167,7 +188,7 @@ namespace Kai_Engine.GAME.Management
         {
             //Parameter is maximum steps for walker
             //Higher steps = denser wall placement
-            DrunkardsWalk(5000);
+            DrunkardsWalk(10000);
         }
 
         #region Drunkard's Walk
@@ -179,8 +200,10 @@ namespace Kai_Engine.GAME.Management
 
         void DrunkardsWalk(int maxSteps)
         {
+            Random random = new Random();
+
             //Due to sprites being equal in size, using a random sprite's (floor) height is fine as a basis for all sprites
-            int tileSize = _floorSprite.Height;
+            int tileSize = Program.cellSize;
             int tileOffset = tileSize + 1;
 
             KaiLogger.Info($"Placing Floors", false);
@@ -192,13 +215,12 @@ namespace Kai_Engine.GAME.Management
                 for (int y = 0; y < Program.MapHeight; y += tileOffset)
                 {
                     floorCounter++;
-                    GameObject floor = new GameObject(_floorSprite, new Vector2(x, y), Layer.Floor, $"Floor_{floorCounter}", true);
+                    GameObject floor = new GameObject(_floorSprite[random.Next(0, _floorSprite.Count)], new Vector2(x, y), Layer.Floor, $"Floor_{floorCounter}", true);
                     Entities.Add(floor);
                 }
             }
 
             KaiLogger.Info($"Starting Walk", false);
-
 
             /* --- Drunkard's Walk Algorithm --- */
 
@@ -206,8 +228,7 @@ namespace Kai_Engine.GAME.Management
             (int dx, int dy)[] directions = { (0, 1), (0, -1), (-1, 0), (1, 0) };
 
             //Pick a start point
-            Random random = new Random();
-            Vector2 currentPos = new Vector2(0, 0);
+            Vector2 currentPos = new Vector2(random.Next(0, freePositions.Count), random.Next(0, freePositions.Count));
 
             int counter = 0;
             //Loop through the walk
@@ -230,7 +251,7 @@ namespace Kai_Engine.GAME.Management
                     counter++;
                     if (!takenPositions.Contains(currentPos))
                     {
-                        GameObject walls = new GameObject(_wallSprite, new Vector2(currentPos.X, currentPos.Y), Layer.Wall, $"Wall_{counter}", true);
+                        GameObject walls = new GameObject(_wallSprite[random.Next(0, _wallSprite.Count)], new Vector2(currentPos.X, currentPos.Y), Layer.Wall, $"Wall_{counter}", true);
 
                         //Initializing wall entity components
                         kCollider wallCollider = new kCollider();
@@ -302,7 +323,6 @@ namespace Kai_Engine.GAME.Management
                 takenPositions.Add(itemSpawnPoints);
                 freePositions.Remove(itemSpawnPoints);
             }
-
 
             //DEBUG
             KaiLogger.Info("Taken Positions: " + takenPositions.Count.ToString(), false);

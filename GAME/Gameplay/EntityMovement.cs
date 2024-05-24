@@ -4,6 +4,7 @@ using Kai_Engine.GAME.Management;
 using Kai_Engine.ENGINE.Utils;
 using System.Numerics;
 using Raylib_cs;
+using Kai_Engine.ENGINE;
 
 namespace Kai_Engine.GAME.Gameplay
 {
@@ -29,7 +30,7 @@ namespace Kai_Engine.GAME.Gameplay
         /// 
         ///#####################################################
         #region Player Movement
-        private readonly int _moveDistance = 17; //17 pixels is one unit for the game
+        private readonly int _moveDistance = Program.cellSize + 1;
         public void MovePlayer(EntityManager eManager)
         {
             GameObject? player = eManager.player;
