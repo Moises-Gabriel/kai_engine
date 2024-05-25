@@ -114,8 +114,6 @@ namespace Kai_Engine.ENGINE.UserInterface
                 Texture = _inventorySpriteTexture,
             };
 
-            sprite.PrintInfo();
-
             UIObject inventoryBlock = new UIObject(sprite.Texture, position, scale, Layer.UI, true);
 
             inventoryBlock.AddComponent(sprite);

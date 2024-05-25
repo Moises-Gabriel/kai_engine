@@ -20,7 +20,7 @@ namespace Kai_Engine.ENGINE
     {
         private const string _engineName = "Kai";
         private const string _engineVersion = "0.0.1";
-        private const string _gameName = "Down & Down";
+        private const string _gameName = "Holy Hell";
 
         internal static int ScreenWidth = 1280;
         internal static int ScreenHeight = 720;
@@ -28,7 +28,7 @@ namespace Kai_Engine.ENGINE
         internal static int MapWidth = 2560;
         internal static int MapHeight = 1440;
 
-        internal static int cellSize = 32; //update this to match sprite size
+        internal static int cellSize = 16; //update this to match sprite size
 
         //Bools
         private const bool _editable = true;
@@ -86,7 +86,7 @@ namespace Kai_Engine.ENGINE
 
                 Raylib.EndMode2D();
 
-                uiManager.Draw();
+                //uiManager.Draw();
                 if (_editable) kaiEditor.Draw(entityManager);
                 if (kaiEditor.DebugOpen && _editable) kaiEditor.DrawGUI(entityManager);
 

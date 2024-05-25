@@ -39,6 +39,7 @@ namespace Kai_Engine.ENGINE.Components
     public class kSprite : IComponent
     {
         public Texture2D sprite;
+        public Rectangle rectangle;
         public string? filePath;
 
         private GameObject? _gameObject;

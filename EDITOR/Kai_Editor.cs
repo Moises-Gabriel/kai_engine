@@ -40,7 +40,7 @@ namespace Kai_Engine.EDITOR
         ///                        Vectors
         ///######################################################################
         private Vector4 _selectedObjectTransform = new();
-        private Vector2 _colliderSize = new(16, 16);
+        private Vector2 _colliderSize = new(Program.cellSize, Program.cellSize);
 
         ///######################################################################
         ///                        GameObjects
@@ -110,7 +110,7 @@ namespace Kai_Engine.EDITOR
                 ImGui.PushItemWidth(50); //Set input field size
                 ImGui.InputInt2("DeadZone Scale", ref eManager.Camera.DeadZoneScale.X); //not sure why this still affects the Y axis lol
                 ImGui.PushItemWidth(50); //Set input field size
-                ImGui.InputFloat("Zoom", ref eManager.Camera.RayCamera.Zoom);
+                ImGui.DragFloat("Zoom", ref eManager.Camera.RayCamera.Zoom);
                 SeparatedSpacer();
 
                 ///######################################################################
@@ -158,8 +158,8 @@ namespace Kai_Engine.EDITOR
                         ImGui.PushItemWidth(50); //Set input field size
 
                         ImGui.Text("Position");
-                        ImGui.DragFloat("X", ref _selectedGameObject.Transform.position.X, 17);
-                        ImGui.DragFloat("Y", ref _selectedGameObject.Transform.position.Y, 17);
+                        ImGui.DragFloat("X", ref _selectedGameObject.Transform.position.X, Program.cellSize + 1);
+                        ImGui.DragFloat("Y", ref _selectedGameObject.Transform.position.Y, Program.cellSize + 1);
 
                         ImGui.TreePop();
                     }
@@ -177,7 +177,7 @@ namespace Kai_Engine.EDITOR
         }
         private void DrawObjectColliders(EntityManager eManager)
         {
-            Vector2 objectSize = new Vector2(16 * eManager.Camera.RayCamera.Zoom, 16 * eManager.Camera.RayCamera.Zoom);
+            Vector2 objectSize = new Vector2(Program.cellSize * eManager.Camera.RayCamera.Zoom, Program.cellSize * eManager.Camera.RayCamera.Zoom);
             if (_showCollision)
             {
                 //Display collision box for player

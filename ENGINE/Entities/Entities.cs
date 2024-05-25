@@ -20,11 +20,11 @@ namespace Kai_Engine.ENGINE.Entities
         public Layer Layer { get; set; }
 
 
-        public GameObject(Texture2D sprite, Vector2 position, Layer layer, string name, bool isActive)
+        public GameObject(Texture2D sprite, Rectangle spriteRec, Vector2 position, Layer layer, string name, bool isActive)
         {
             Name = new kName { name = name };
             Transform = new kTransform { position = position, size = new Vector2(16, 16) };
-            Sprite = new kSprite { sprite = sprite };
+            Sprite = new kSprite { sprite = sprite, rectangle = spriteRec };
             IsActive = isActive;
             Layer = layer;
 
@@ -59,7 +59,7 @@ namespace Kai_Engine.ENGINE.Entities
         {
             if (IsActive)
             {
-                Raylib.DrawTexture(Sprite.sprite, (int)Transform.position.X, (int)Transform.position.Y, Color.White);
+                Raylib.DrawTextureRec(Sprite.sprite, Sprite.rectangle, new Vector2((int)Transform.position.X, (int)Transform.position.Y), Color.White);
             }
         }
     }
