@@ -13,11 +13,6 @@ namespace Kai_Engine.GAME.Gameplay
         ///######################################################################
         ///                     //TODO: IN ENTITY MOVEMENT
         ///                           
-        ///   - When colliding with wall, damage is ticked multiple times
-        ///   a second (because it's per frame); not wanted [done]
-        ///   
-        ///   - Figure out how to actually destroy/remove a wall when its
-        ///   health goes all the way down [pending/done]
         /// 
         ///######################################################################
 

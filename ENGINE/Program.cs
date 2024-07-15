@@ -1,8 +1,8 @@
 ﻿using Kai_Engine.ENGINE.UserInterface;
 using Kai_Engine.GAME.Management;
 using Kai_Engine.ENGINE.Utils;
+using System.Globalization;
 using Kai_Engine.EDITOR;
-using System.Numerics;
 using Raylib_cs;
 
 namespace Kai_Engine.ENGINE
@@ -30,7 +30,9 @@ namespace Kai_Engine.ENGINE
 
         internal static int cellSize = 16; //update this to match sprite size
 
-        //Bools
+        internal static Color clearColor = new Color(28, 22, 19, 255);
+
+        //Debug Editor
         private const bool _editable = true;
 
         static void Main()
@@ -48,6 +50,13 @@ namespace Kai_Engine.ENGINE
 
             Raylib.InitWindow(ScreenWidth, ScreenHeight, _engineName);
             Raylib.SetTargetFPS(60);
+
+            Image blankImage = Raylib.GenImageColor(ScreenWidth, ScreenHeight, Color.Blank);
+            Texture2D shaderTexture = Raylib.LoadTextureFromImage(blankImage);
+            Raylib.UnloadImage(blankImage);
+            string frag = "GAME/Assets/Shaders/noise.fs";
+            string vert = "GAME/Assets/Shaders/noise.vs";
+            Shader backgroundShader = Raylib.LoadShader(vert, frag);
 
             if (_editable) kaiEditor.Init();
 
@@ -78,7 +87,11 @@ namespace Kai_Engine.ENGINE
                 ///######################################################################
 
                 Raylib.BeginDrawing();
-                Raylib.ClearBackground(Color.Black);
+                Raylib.ClearBackground(clearColor);
+
+                // Raylib.BeginShaderMode(backgroundShader);
+                // Raylib.DrawTexture(shaderTexture, ScreenWidth, ScreenHeight, Color.White);
+                // Raylib.EndShaderMode();
 
                 Raylib.BeginMode2D(entityManager.Camera.RayCamera);
 
@@ -94,6 +107,7 @@ namespace Kai_Engine.ENGINE
             }
 
             //Cleanup
+            Raylib.UnloadShader(backgroundShader);
             Raylib.CloseWindow();
         }
     }

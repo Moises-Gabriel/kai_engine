@@ -110,7 +110,11 @@ namespace Kai_Engine.EDITOR
                 ImGui.PushItemWidth(50); //Set input field size
                 ImGui.InputInt2("DeadZone Scale", ref eManager.Camera.DeadZoneScale.X); //not sure why this still affects the Y axis lol
                 ImGui.PushItemWidth(50); //Set input field size
-                ImGui.DragFloat("Zoom", ref eManager.Camera.RayCamera.Zoom);
+                ImGui.InputFloat("Smooth Factor", ref eManager.Camera.SmoothFactor);
+                ImGui.PushItemWidth(50); //Set input field size
+                ImGui.InputFloat("Zoom", ref eManager.Camera.RayCamera.Zoom);
+                ImGui.PushItemWidth(50); //Set input field size
+                ImGui.InputFloat("Rotation", ref eManager.Camera.RayCamera.Rotation);
                 SeparatedSpacer();
 
                 ///######################################################################

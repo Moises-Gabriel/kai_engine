@@ -7,7 +7,6 @@ using Kai_Engine.ENGINE;
 using System.Numerics;
 using System.Data;
 using Raylib_cs;
-using System.Runtime.CompilerServices;
 
 namespace Kai_Engine.GAME.Management
 {
@@ -16,7 +15,8 @@ namespace Kai_Engine.GAME.Management
         ///######################################################################
         ///                     TODO: IN ENTITY MANAGER
         ///                           
-        ///   - Nothing for now; Great job!
+        ///   - Walls no longer have individual names/numbers
+        ///   - 
         /// 
         ///######################################################################
 
@@ -36,12 +36,22 @@ namespace Kai_Engine.GAME.Management
         public List<GameObject> ItemObjects = new();
 
         //Wall Entity           
-        private Rectangle _wallRec = new();
+        private Rectangle _wallRec1 = new();
+        private Rectangle _wallRec2 = new();
+        private List<Rectangle> _wallRecs = new();
         public List<GameObject> WallObjects = new();
+
+        //Rock/Ore Entity
+        private Rectangle _rockRec1 = new();
+        private Rectangle _rockRec2 = new();
+        private List<Rectangle> _rockRecs = new();
+        public List<GameObject> RockObjects = new();
 
 
         //Floor Entity
-        private Rectangle _floorRec = new();
+        private Rectangle _floorRec1 = new();
+        private Rectangle _floorRec2 = new();
+        private List<Rectangle> _floorRecs = new();
 
         //Player Entity         
         private Rectangle _playerRec = new();
@@ -63,10 +73,25 @@ namespace Kai_Engine.GAME.Management
             //Spritesheet Rectangles
             int w = _spriteSheet.Width / 10;
             int h = _spriteSheet.Height / 10;
+
             _playerRec = new(16, 0, w, h);
-            _wallRec = new(0, 16, w, h);
+
+            _wallRec1 = new(0, 16, w, h);
+            _wallRec2 = new(16, 16, w, h);
+            _wallRecs.Add(_wallRec1);
+            _wallRecs.Add(_wallRec2);
+
+            _rockRec1 = new(32, 16, w, h);
+            _rockRec2 = new(48, 16, w, h);
+            _rockRecs.Add(_rockRec1);
+            _rockRecs.Add(_rockRec2);
+
+            _floorRec1 = new(0, 48, w, h);
+            _floorRec2 = new(16, 48, w, h);
+            _floorRecs.Add(_floorRec1);
+            _floorRecs.Add(_floorRec2);
+
             _itemRec = new(0, 32, w, h);
-            _floorRec = new(0, 48, w, h);
 
             //Initialize Camera
             Camera = new Camera();
@@ -76,14 +101,11 @@ namespace Kai_Engine.GAME.Management
         {
             //Initialize script references
             _eMovement = new EntityMovement();
-
             //Create level
             GenerateLevel();
-
             //Set target after player has spawned
             Camera.Start(player.Transform);
         }
-
         public void Update()
         {
             ///######################################################################
@@ -101,7 +123,6 @@ namespace Kai_Engine.GAME.Management
 
             Camera.Update(ref Camera.RayCamera, player.Transform, new Vector2(Program.MapWidth, Program.MapHeight));
         }
-
         public void Draw()
         {
             //Draw based on position in Layer enum
@@ -111,7 +132,6 @@ namespace Kai_Engine.GAME.Management
                 entity.Draw();
             }
         }
-
         public void AddPlayer(Vector2 spawnPoint)
         {
             GameObject _player = new(_spriteSheet, _playerRec, spawnPoint, Layer.Player, "Player", true);
@@ -127,7 +147,7 @@ namespace Kai_Engine.GAME.Management
             kTransform playerTransform = player.Transform;
 
             Vector2 playerPosition = new Vector2(playerTransform.position.X, playerTransform.position.Y);
-            playerCollider.ColliderSize(playerPosition, playerTransform.size);
+            playerCollider.ColliderSize(playerPosition, new Vector2(playerTransform.size.X - 0.5f, playerTransform.size.Y - 0.5f));
 
             player.AddComponent(playerHealth);
             player.AddComponent(playerCollider);
@@ -159,9 +179,10 @@ namespace Kai_Engine.GAME.Management
         }
         public void AddWall(Vector2 currentPosition, int health)
         {
+            Random random = new Random();
             int counter = 0;
             counter++;
-            GameObject walls = new GameObject(_spriteSheet, _wallRec, new Vector2(currentPosition.X, currentPosition.Y), Layer.Wall, $"Wall_{counter}", true);
+            GameObject walls = new GameObject(_spriteSheet, _wallRecs[random.Next(0, _wallRecs.Count)], new Vector2(currentPosition.X, currentPosition.Y), Layer.Wall, $"Wall_{counter}", true);
 
             //Initializing wall entity components
             kCollider wallCollider = new kCollider();
@@ -191,17 +212,48 @@ namespace Kai_Engine.GAME.Management
         public void AddFloor(Vector2 position)
         {
             KaiLogger.Info($"Placing Floors", false);
-
+            Random random = new Random();
             //Place floors
-            GameObject floor = new GameObject(_spriteSheet, _floorRec, new Vector2(position.X, position.Y), Layer.Floor, $"Floor", true);
+            GameObject floor = new GameObject(_spriteSheet, _floorRecs[random.Next(0, _floorRecs.Count)], new Vector2(position.X, position.Y), Layer.Floor, $"Floor", true);
             Entities.Add(floor);
             freePositions.Add(floor.Transform.position);
+        }
+        public void AddRock(Vector2 currentPosition, int health)
+        {
+            Random random = new Random();
+            int counter = 0;
+            counter++;
+            GameObject rock = new GameObject(_spriteSheet, _rockRecs[random.Next(0, _rockRecs.Count)], new Vector2(currentPosition.X, currentPosition.Y), Layer.Wall, $"Wall_{counter}", true);
+
+            //Initializing wall entity components
+            kCollider rockCollider = new kCollider();
+            kHealth rockHealth = new kHealth();
+            kTag rockTag = new kTag();
+
+            rockHealth.health = health;
+            rockTag.tag = "rock";
+
+            //Components
+            rock.AddComponent(rockCollider);
+
+
+            kTransform rockTrans = rock.Transform;
+            Vector2 wallPosition = new Vector2(rockTrans.position.X, rockTrans.position.Y);
+            rockCollider.ColliderSize(wallPosition, new Vector2(16, 16));
+            rockCollider.IsActive = true;
+
+            rock.AddComponent(rockHealth);
+            rock.AddComponent(rockTag);
+
+            //Add entities and transforms to list.
+            Entities.Add(rock);                          //List of IEntities
+            AllObjects.Add(rock);                        //List of All GameObjects
+            WallObjects.Add(rock);                       //List of rock GameObjects
         }
         public void GenerateLevel()
         {
             //Parameter is maximum steps for walker
-            //Higher steps = denser wall placement
-            DrunkardsWalk(10000);
+            DrunkardsWalk(20000);
         }
 
         #region Drunkard's Walk
@@ -248,6 +300,31 @@ namespace Kai_Engine.GAME.Management
                 }
             }
 
+            // //Add Rocks
+            // //Pick a start point
+            // Vector2 currentPosRock = new Vector2(freePositions[random.Next(0, freePositions.Count)].X, freePositions[random.Next(0, freePositions.Count)].Y);
+            // for (int step = 0; step < maxSteps / 5; step++)
+            // {
+            //     //choose direction at random
+            //     (int dx, int dy) direction = directions[random.Next(0, directions.GetLength(0))];
+
+            //     //move to new position
+            //     int newX = (int)currentPosRock.X + direction.dx * tileOffset;
+            //     int newY = (int)currentPosRock.Y + direction.dy * tileOffset;
+
+            //     //update current position with new position
+            //     currentPosRock.X = newX;
+            //     currentPosRock.Y = newY;
+
+            //     counter++;
+            //     if (freePositions.Contains(currentPosRock))
+            //     {
+            //         AddRock(new Vector2(currentPosRock.X, currentPosRock.Y), 50);
+            //         freePositions.Remove(currentPosRock);
+            //         takenPositions.Add(currentPosRock);
+            //     }
+            // }
+
             //Spawn player at a free location
             Vector2 playerSpawnPoint = freePositions[random.Next(0, freePositions.Count)];
             AddPlayer(playerSpawnPoint);
@@ -258,21 +335,21 @@ namespace Kai_Engine.GAME.Management
             GenerateBorder(freePositions, tileOffset);
 
             //Spawn items at free locations
-            int spawnCount = random.Next(0, 30);
-            for (int i = 0; i < spawnCount; i++)
-            {
-                Vector2 itemSpawnPoints = freePositions[random.Next(0, freePositions.Count)];
-                AddItem(itemSpawnPoints);
+            // int spawnCount = random.Next(0, 30);
+            // for (int i = 0; i < spawnCount; i++)
+            // {
+            //     Vector2 itemSpawnPoints = freePositions[random.Next(0, freePositions.Count)];
+            //     AddItem(itemSpawnPoints);
 
-                takenPositions.Add(itemSpawnPoints);
-                freePositions.Remove(itemSpawnPoints);
-            }
+            //     takenPositions.Add(itemSpawnPoints);
+            //     freePositions.Remove(itemSpawnPoints);
+            // }
 
             //DEBUG
+            KaiLogger.Important("SNIFFA", true);
             KaiLogger.Info("Taken Positions: " + takenPositions.Count.ToString(), false);
             KaiLogger.Info("Free Positions: " + freePositions.Count.ToString(), false);
         }
-
         private void GenerateBorder(List<Vector2> freePositions, int tileOffset)
         {
             // Directions to check around each tile (up, down, left, right)
@@ -298,3 +375,4 @@ namespace Kai_Engine.GAME.Management
 
     }
 }
+
