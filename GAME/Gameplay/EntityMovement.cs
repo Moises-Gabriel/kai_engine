@@ -139,7 +139,7 @@ namespace Kai_Engine.GAME.Gameplay
             {
                 otherHealth.health -= damageAmount;
                 otherCollider.FinishedProcessing = true;  //Mark this collision as processed
-                KaiLogger.Info($"{other.Name.name} Health: " + otherHealth.health, false);
+                KaiLogger.Info("EntityMovement", $"{other.Name.name} Health: {otherHealth.health}", false);
 
                 if (otherHealth.health <= 0)
                 {

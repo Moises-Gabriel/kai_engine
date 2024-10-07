@@ -35,7 +35,8 @@ namespace Kai_Engine.GAME.Management
         private Rectangle _itemRec = new();
         public List<GameObject> ItemObjects = new();
 
-        //Wall Entity           
+        //Wall Entity
+        private int _maxWalls = 2000;
         private Rectangle _wallRec1 = new();
         private Rectangle _wallRec2 = new();
         private List<Rectangle> _wallRecs = new();
@@ -195,7 +196,6 @@ namespace Kai_Engine.GAME.Management
             //Components
             walls.AddComponent(wallCollider);
 
-
             kTransform wallTrans = walls.Transform;
             Vector2 wallPosition = new Vector2(wallTrans.position.X, wallTrans.position.Y);
             wallCollider.ColliderSize(wallPosition, new Vector2(16, 16));
@@ -211,7 +211,7 @@ namespace Kai_Engine.GAME.Management
         }
         public void AddFloor(Vector2 position)
         {
-            KaiLogger.Info($"Placing Floors", false);
+            KaiLogger.Info("EntityManager", $"Placing Floors", false);
             Random random = new Random();
             //Place floors
             GameObject floor = new GameObject(_spriteSheet, _floorRecs[random.Next(0, _floorRecs.Count)], new Vector2(position.X, position.Y), Layer.Floor, $"Floor", true);
@@ -253,7 +253,7 @@ namespace Kai_Engine.GAME.Management
         public void GenerateLevel()
         {
             //Parameter is maximum steps for walker
-            DrunkardsWalk(20000);
+            DrunkardsWalk(_maxWalls);
         }
 
         #region Drunkard's Walk
@@ -268,7 +268,7 @@ namespace Kai_Engine.GAME.Management
             int tileSize = Program.cellSize;
             int tileOffset = tileSize + 1;
 
-            KaiLogger.Info($"Starting Walk", false);
+            KaiLogger.Info("EntityManager", $"Starting Walk", false);
 
             /* --- Drunkard's Walk Algorithm --- */
 
@@ -300,40 +300,44 @@ namespace Kai_Engine.GAME.Management
                 }
             }
 
-            // //Add Rocks
-            // //Pick a start point
-            // Vector2 currentPosRock = new Vector2(freePositions[random.Next(0, freePositions.Count)].X, freePositions[random.Next(0, freePositions.Count)].Y);
-            // for (int step = 0; step < maxSteps / 5; step++)
-            // {
-            //     //choose direction at random
-            //     (int dx, int dy) direction = directions[random.Next(0, directions.GetLength(0))];
+            #region SPAWNING
+            //--------------
+            #region ROCKS
+            //Pick a start point
+            Vector2 currentPosRock = new Vector2(freePositions[random.Next(0, freePositions.Count)].X, freePositions[random.Next(0, freePositions.Count)].Y);
+            for (int step = 0; step < maxSteps / 5; step++)
+            {
+                //choose direction at random
+                (int dx, int dy) direction = directions[random.Next(0, directions.GetLength(0))];
 
-            //     //move to new position
-            //     int newX = (int)currentPosRock.X + direction.dx * tileOffset;
-            //     int newY = (int)currentPosRock.Y + direction.dy * tileOffset;
+                //move to new position
+                int newX = (int)currentPosRock.X + direction.dx * tileOffset;
+                int newY = (int)currentPosRock.Y + direction.dy * tileOffset;
 
-            //     //update current position with new position
-            //     currentPosRock.X = newX;
-            //     currentPosRock.Y = newY;
+                //update current position with new position
+                currentPosRock.X = newX;
+                currentPosRock.Y = newY;
 
-            //     counter++;
-            //     if (freePositions.Contains(currentPosRock))
-            //     {
-            //         AddRock(new Vector2(currentPosRock.X, currentPosRock.Y), 50);
-            //         freePositions.Remove(currentPosRock);
-            //         takenPositions.Add(currentPosRock);
-            //     }
-            // }
+                counter++;
+                if (freePositions.Contains(currentPosRock))
+                {
+                    AddRock(new Vector2(currentPosRock.X, currentPosRock.Y), 50);
+                    freePositions.Remove(currentPosRock);
+                    takenPositions.Add(currentPosRock);
+                }
+            }
+            #endregion
 
+            #region PLAYER
             //Spawn player at a free location
             Vector2 playerSpawnPoint = freePositions[random.Next(0, freePositions.Count)];
             AddPlayer(playerSpawnPoint);
 
             takenPositions.Add(playerSpawnPoint); //add player spawn point to taken positions
             freePositions.Remove(playerSpawnPoint); //remove player spawn point from available positions
+            #endregion
 
-            GenerateBorder(freePositions, tileOffset);
-
+            #region ITEMS
             //Spawn items at free locations
             // int spawnCount = random.Next(0, 30);
             // for (int i = 0; i < spawnCount; i++)
@@ -344,11 +348,17 @@ namespace Kai_Engine.GAME.Management
             //     takenPositions.Add(itemSpawnPoints);
             //     freePositions.Remove(itemSpawnPoints);
             // }
+            #endregion
+            //--------------
+            #endregion
 
-            //DEBUG
-            KaiLogger.Important("SNIFFA", true);
-            KaiLogger.Info("Taken Positions: " + takenPositions.Count.ToString(), false);
-            KaiLogger.Info("Free Positions: " + freePositions.Count.ToString(), false);
+            GenerateBorder(freePositions, tileOffset);
+
+            #region DEBUG
+            KaiLogger.Warn("EntityManager", "SNIFFA", false);
+            KaiLogger.Info("EntityManager", "Taken Positions: " + takenPositions.Count.ToString(), false);
+            KaiLogger.Info("EntityManager", "Free Positions: " + freePositions.Count.ToString(), false);
+            #endregion
         }
         private void GenerateBorder(List<Vector2> freePositions, int tileOffset)
         {

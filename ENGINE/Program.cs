@@ -37,13 +37,15 @@ namespace Kai_Engine.ENGINE
 
         static void Main()
         {
-            //Engine Info
-            KaiLogger.Important($"{_engineName}: [v:{_engineVersion}]", false);
-            KaiLogger.Important($"Game: {_gameName}", false);
+            #region ENGINE INFO
+            //--------------------
+            KaiLogger.Important("Program", $"{_engineName}: [v:{_engineVersion}]", false);
+            KaiLogger.Important("Program", $"Game: {_gameName}", false);
+            //--------------------
+            #endregion
 
-            ///######################################################################
-            ///                             Initialize
-            ///######################################################################
+            #region INITIALIZATION
+            //--------------------
             EntityManager entityManager = new();
             UIManager uiManager = new();
             Kai_Editor kaiEditor = new();
@@ -51,47 +53,38 @@ namespace Kai_Engine.ENGINE
             Raylib.InitWindow(ScreenWidth, ScreenHeight, _engineName);
             Raylib.SetTargetFPS(60);
 
-            Image blankImage = Raylib.GenImageColor(ScreenWidth, ScreenHeight, Color.Blank);
-            Texture2D shaderTexture = Raylib.LoadTextureFromImage(blankImage);
-            Raylib.UnloadImage(blankImage);
-            string frag = "GAME/Assets/Shaders/noise.fs";
-            string vert = "GAME/Assets/Shaders/noise.vs";
-            Shader backgroundShader = Raylib.LoadShader(vert, frag);
-
             if (_editable) kaiEditor.Init();
 
             entityManager.Init();
             uiManager.Init();
+            //--------------------
+            #endregion
 
-            ///######################################################################
-            ///                             Start
-            ///######################################################################
+            #region START
+            //--------------------
             entityManager.Start();
             uiManager.Start();
 
             if (_editable) kaiEditor.Start(entityManager);
+            //--------------------
+            #endregion
 
-            //Main Game Loop
+            #region GAME LOOP
+            //--------------------
+            KaiLogger.Important("Program", "Starting Game Loop", false);
             while (!Raylib.WindowShouldClose())
             {
-
-                ///######################################################################
-                ///                             Update
-                ///######################################################################
+                #region UPDATE
+                //--------------------
                 entityManager.Update();
                 uiManager.Update();
-
                 if (_editable) kaiEditor.Update(entityManager);
-                ///######################################################################
-                ///                             Draw
-                ///######################################################################
-
+                //--------------------
+                #endregion
+                #region DRAW
+                //--------------------
                 Raylib.BeginDrawing();
                 Raylib.ClearBackground(clearColor);
-
-                // Raylib.BeginShaderMode(backgroundShader);
-                // Raylib.DrawTexture(shaderTexture, ScreenWidth, ScreenHeight, Color.White);
-                // Raylib.EndShaderMode();
 
                 Raylib.BeginMode2D(entityManager.Camera.RayCamera);
 
@@ -99,15 +92,19 @@ namespace Kai_Engine.ENGINE
 
                 Raylib.EndMode2D();
 
-                //uiManager.Draw();
+                uiManager.Draw();
+
                 if (_editable) kaiEditor.Draw(entityManager);
                 if (kaiEditor.DebugOpen && _editable) kaiEditor.DrawGUI(entityManager);
 
                 Raylib.EndDrawing();
+                //--------------------
+                #endregion
             }
+            //--------------------
+            #endregion
 
             //Cleanup
-            Raylib.UnloadShader(backgroundShader);
             Raylib.CloseWindow();
         }
     }

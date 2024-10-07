@@ -16,7 +16,7 @@ namespace Kai_Engine.ENGINE.Systems
             RayCamera.Offset = new Vector2(Program.MapWidth / 4, Program.MapHeight / 4);
             RayCamera.Target = playerTransform.position;
             RayCamera.Rotation = 0.0f;
-            RayCamera.Zoom = 1.0f;
+            RayCamera.Zoom = 2.0f;
         }
 
         public void Update(ref Camera2D camera, kTransform playerPosition, Vector2 screenSize)

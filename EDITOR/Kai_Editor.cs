@@ -55,13 +55,13 @@ namespace Kai_Engine.EDITOR
         public void Init()
         {
             rlImGui.Setup(true);
-            KaiLogger.Info("Initialized ImGUI", true);
+            KaiLogger.Important("KaiEditor", "ImGUI: Ready", false);
+            KaiLogger.Important("KaiEditor", "Kai Debug: Ready", false);
         }
 
         public void Start(EntityManager eManager)
         {
             player = eManager.player;
-            KaiLogger.Important("Kai Editor: Ready", true);
         }
 
         public void Update(EntityManager eManager)
@@ -70,12 +70,12 @@ namespace Kai_Engine.EDITOR
 
             if (Raylib.IsKeyPressed(KeyboardKey.Tab) && !DebugOpen)
             {
-                KaiLogger.Info("Debug Open", false);
+                KaiLogger.Info("KaiEditor", "Debug Open", false);
                 DebugOpen = true;
             }
             else if (Raylib.IsKeyPressed(KeyboardKey.Tab) && DebugOpen)
             {
-                KaiLogger.Info("Debug Closed", false);
+                KaiLogger.Info("KaiEditor", "Debug Closed", false);
                 DebugOpen = false;
             }
         }

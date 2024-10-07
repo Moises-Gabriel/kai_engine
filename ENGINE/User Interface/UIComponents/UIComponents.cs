@@ -28,13 +28,6 @@ namespace Kai_Engine.ENGINE.UserInterface
         {
             get { return _UIObject; }
         }
-
-        public void PrintInfo()
-        {
-            KaiLogger.Info($"Tag: {Tag}", false);
-            KaiLogger.Info($"FilePath: {FilePath}", false);
-            KaiLogger.Info($"IsLoaded: {IsLoaded}", false);
-        }
     }
 
     public class UITransform : IUIComponent
