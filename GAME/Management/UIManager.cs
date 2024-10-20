@@ -25,7 +25,7 @@ namespace Kai_Engine.ENGINE.UserInterface
         ///######################################################################
         ///                        UI Object Variables
         ///######################################################################
-        private string _basePath = Environment.CurrentDirectory;
+        private string _basePath = "C:/Dev/CSharp/Kai_Engine_CS/Kai_Engine";
 
         //Inventory
         private string? _inventorySpritePath;

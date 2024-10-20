@@ -48,10 +48,7 @@ namespace Kai_Engine.EDITOR
         private GameObject? _selectedGameObject;
         private GameObject? player;
 
-
-        ///######################################################################
-        ///                        Main
-        ///######################################################################
+        #region INITIALIZATION
         public void Init()
         {
             rlImGui.Setup(true);
@@ -63,7 +60,9 @@ namespace Kai_Engine.EDITOR
         {
             player = eManager.player;
         }
+        #endregion
 
+        #region LOOPS
         public void Update(EntityManager eManager)
         {
             DetectMouse(eManager);
@@ -88,6 +87,7 @@ namespace Kai_Engine.EDITOR
                              new Vector2(_selectedObjectTransform.Z, _selectedObjectTransform.W), eManager);
             DrawCameraDeadzone(eManager, new Vector2(Program.MapWidth, Program.MapHeight));
         }
+        #endregion
 
         ///######################################################################
         ///                            Drawing

@@ -16,12 +16,10 @@ namespace Kai_Engine.GAME.Management
         ///                     TODO: IN ENTITY MANAGER
         ///                           
         ///   - Walls no longer have individual names/numbers
-        ///   - 
-        /// 
         ///######################################################################
 
         #region Entity Variables
-        private string _basePath = Environment.CurrentDirectory;
+        private string _basePath = "C:/Dev/CSharp/Kai_Engine_CS/Kai_Engine/GAME";
 
         //List of all entities/GameObjects in the game
         public List<IEntity> Entities = new();
@@ -36,7 +34,7 @@ namespace Kai_Engine.GAME.Management
         public List<GameObject> ItemObjects = new();
 
         //Wall Entity
-        private int _maxWalls = 2000;
+        private int _maxWalls = 500;
         private Rectangle _wallRec1 = new();
         private Rectangle _wallRec2 = new();
         private List<Rectangle> _wallRecs = new();
@@ -68,7 +66,8 @@ namespace Kai_Engine.GAME.Management
         public void Init()
         {
             //Set path & Initialize spritesheet
-            _spriteSheetPath = Path.Combine(_basePath, "GAME/Assets/sprite_sheet.png");
+            KaiLogger.Info("Entity Manager", Environment.CurrentDirectory, false);
+            _spriteSheetPath = Path.Combine(_basePath, "Assets/sprite_sheet.png");
             _spriteSheet = Raylib.LoadTexture(_spriteSheetPath);
 
             //Spritesheet Rectangles
@@ -211,7 +210,6 @@ namespace Kai_Engine.GAME.Management
         }
         public void AddFloor(Vector2 position)
         {
-            KaiLogger.Info("EntityManager", $"Placing Floors", false);
             Random random = new Random();
             //Place floors
             GameObject floor = new GameObject(_spriteSheet, _floorRecs[random.Next(0, _floorRecs.Count)], new Vector2(position.X, position.Y), Layer.Floor, $"Floor", true);
@@ -302,30 +300,30 @@ namespace Kai_Engine.GAME.Management
 
             #region SPAWNING
             //--------------
-            #region ROCKS
-            //Pick a start point
-            Vector2 currentPosRock = new Vector2(freePositions[random.Next(0, freePositions.Count)].X, freePositions[random.Next(0, freePositions.Count)].Y);
-            for (int step = 0; step < maxSteps / 5; step++)
-            {
-                //choose direction at random
-                (int dx, int dy) direction = directions[random.Next(0, directions.GetLength(0))];
+            #region ROCKS <- Not Active
+            // //Pick a start point
+            // Vector2 currentPosRock = new Vector2(freePositions[random.Next(0, freePositions.Count)].X, freePositions[random.Next(0, freePositions.Count)].Y);
+            // for (int step = 0; step < maxSteps / 5; step++)
+            // {
+            //     //choose direction at random
+            //     (int dx, int dy) direction = directions[random.Next(0, directions.GetLength(0))];
 
-                //move to new position
-                int newX = (int)currentPosRock.X + direction.dx * tileOffset;
-                int newY = (int)currentPosRock.Y + direction.dy * tileOffset;
+            //     //move to new position
+            //     int newX = (int)currentPosRock.X + direction.dx * tileOffset;
+            //     int newY = (int)currentPosRock.Y + direction.dy * tileOffset;
 
-                //update current position with new position
-                currentPosRock.X = newX;
-                currentPosRock.Y = newY;
+            //     //update current position with new position
+            //     currentPosRock.X = newX;
+            //     currentPosRock.Y = newY;
 
-                counter++;
-                if (freePositions.Contains(currentPosRock))
-                {
-                    AddRock(new Vector2(currentPosRock.X, currentPosRock.Y), 50);
-                    freePositions.Remove(currentPosRock);
-                    takenPositions.Add(currentPosRock);
-                }
-            }
+            //     counter++;
+            //     if (freePositions.Contains(currentPosRock))
+            //     {
+            //         AddRock(new Vector2(currentPosRock.X, currentPosRock.Y), 50);
+            //         freePositions.Remove(currentPosRock);
+            //         takenPositions.Add(currentPosRock);
+            //     }
+            // }
             #endregion
 
             #region PLAYER

@@ -16,11 +16,12 @@ namespace Kai_Engine.ENGINE
         Player,
         UI
     }
+
     internal class Program
     {
         private const string _engineName = "Kai";
         private const string _engineVersion = "0.0.1";
-        private const string _gameName = "Holy Hell";
+        private const string _gameName = "Crawl";
 
         internal static int ScreenWidth = 1280;
         internal static int ScreenHeight = 720;
@@ -87,15 +88,16 @@ namespace Kai_Engine.ENGINE
                 Raylib.ClearBackground(clearColor);
 
                 Raylib.BeginMode2D(entityManager.Camera.RayCamera);
-
                 entityManager.Draw();
-
                 Raylib.EndMode2D();
 
                 uiManager.Draw();
 
-                if (_editable) kaiEditor.Draw(entityManager);
-                if (kaiEditor.DebugOpen && _editable) kaiEditor.DrawGUI(entityManager);
+                if (_editable)
+                    kaiEditor.Draw(entityManager);
+
+                if (kaiEditor.DebugOpen && _editable)
+                    kaiEditor.DrawGUI(entityManager);
 
                 Raylib.EndDrawing();
                 //--------------------
