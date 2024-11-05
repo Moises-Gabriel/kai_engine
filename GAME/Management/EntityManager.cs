@@ -19,7 +19,7 @@ namespace Kai_Engine.GAME.Management
         ///######################################################################
 
         #region Entity Variables
-        private string _basePath = "C:/Dev/CSharp/Kai_Engine_CS/Kai_Engine/GAME";
+        private static string workingDirectory = Environment.CurrentDirectory;
 
         //List of all entities/GameObjects in the game
         public List<IEntity> Entities = new();
@@ -66,8 +66,8 @@ namespace Kai_Engine.GAME.Management
         public void Init()
         {
             //Set path & Initialize spritesheet
-            KaiLogger.Info("Entity Manager", Environment.CurrentDirectory, false);
-            _spriteSheetPath = Path.Combine(_basePath, "Assets/sprite_sheet.png");
+            KaiLogger.Info("Entity Manager", workingDirectory, false);
+            _spriteSheetPath = Path.Combine(workingDirectory, "GAME/Assets/sprite_sheet.png");
             _spriteSheet = Raylib.LoadTexture(_spriteSheetPath);
 
             //Spritesheet Rectangles

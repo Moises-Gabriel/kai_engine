@@ -25,7 +25,7 @@ namespace Kai_Engine.ENGINE.UserInterface
         ///######################################################################
         ///                        UI Object Variables
         ///######################################################################
-        private string _basePath = "C:/Dev/CSharp/Kai_Engine_CS/Kai_Engine";
+        private static string workingDirectory = Environment.CurrentDirectory;
 
         //Inventory
         private string? _inventorySpritePath;
@@ -42,7 +42,7 @@ namespace Kai_Engine.ENGINE.UserInterface
         public void Init()
         {
             //Set sprite paths
-            _inventorySpritePath = Path.Combine(_basePath, "GAME/Assets/inventory_sprite.png");
+            _inventorySpritePath = Path.Combine(workingDirectory, "GAME/Assets/inventory_sprite.png");
 
             //Initialize UI sprites
             _inventorySpriteTexture = Raylib.LoadTexture(_inventorySpritePath);
