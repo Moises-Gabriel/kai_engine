@@ -7,16 +7,6 @@ using Raylib_cs;
 
 namespace Kai_Engine.ENGINE
 {
-    //NOTE: Layer hierarchy goes from bottom to top
-    public enum Layer
-    {
-        Floor,
-        Item,
-        Wall,
-        Player,
-        UI
-    }
-
     internal class Program
     {
         private const string _engineName = "Kai";
@@ -38,73 +28,28 @@ namespace Kai_Engine.ENGINE
 
         static void Main()
         {
-            #region ENGINE INFO
-            //--------------------
             KaiLogger.Important("Program", $"{_engineName}: [v:{_engineVersion}]", false);
             KaiLogger.Important("Program", $"Game: {_gameName}", false);
-            //--------------------
-            #endregion
-
-            #region INITIALIZATION
-            //--------------------
-            EntityManager entityManager = new();
-            UIManager uiManager = new();
-            Kai_Editor kaiEditor = new();
 
             Raylib.InitWindow(ScreenWidth, ScreenHeight, _engineName);
             Raylib.SetTargetFPS(60);
 
-            if (_editable) kaiEditor.Init();
+            Game game = new Game();
+            game.Init();
+            game.Start();
 
-            entityManager.Init();
-            uiManager.Init();
-            //--------------------
-            #endregion
-
-            #region START
-            //--------------------
-            entityManager.Start();
-            uiManager.Start();
-
-            if (_editable) kaiEditor.Start(entityManager);
-            //--------------------
-            #endregion
-
-            #region GAME LOOP
-            //--------------------
             KaiLogger.Important("Program", "Starting Game Loop", false);
             while (!Raylib.WindowShouldClose())
             {
-                #region UPDATE
-                //--------------------
-                entityManager.Update();
-                uiManager.Update();
-                if (_editable) kaiEditor.Update(entityManager);
-                //--------------------
-                #endregion
-                #region DRAW
-                //--------------------
+                game.Update();
+
                 Raylib.BeginDrawing();
-                Raylib.ClearBackground(clearColor);
 
-                Raylib.BeginMode2D(entityManager.Camera.RayCamera);
-                entityManager.Draw();
-                Raylib.EndMode2D();
-
-                uiManager.Draw();
-
-                if (_editable)
-                    kaiEditor.Draw(entityManager);
-
-                if (kaiEditor.DebugOpen && _editable)
-                    kaiEditor.DrawGUI(entityManager);
+                game.Draw();
+                game.UIDraw();
 
                 Raylib.EndDrawing();
-                //--------------------
-                #endregion
             }
-            //--------------------
-            #endregion
 
             //Cleanup
             Raylib.CloseWindow();

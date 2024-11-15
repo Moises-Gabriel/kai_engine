@@ -66,7 +66,6 @@ namespace Kai_Engine.GAME.Management
         public void Init()
         {
             //Set path & Initialize spritesheet
-            KaiLogger.Info("Entity Manager", workingDirectory, false);
             _spriteSheetPath = Path.Combine(workingDirectory, "GAME/Assets/sprite_sheet.png");
             _spriteSheet = Raylib.LoadTexture(_spriteSheetPath);
 
