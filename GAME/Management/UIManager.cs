@@ -23,15 +23,6 @@ namespace Kai_Engine.ENGINE.UserInterface
         public List<UIObject> UIObjects = new();
 
         ///######################################################################
-        ///                        UI Object Variables
-        ///######################################################################
-        private static string workingDirectory = Environment.CurrentDirectory;
-
-        //Inventory
-        private string? _inventorySpritePath;
-        private Texture2D _inventorySpriteTexture = new();
-
-        ///######################################################################
         ///                        Vectors
         ///######################################################################
         private Vector2 inventoryPosition = new();
@@ -41,11 +32,7 @@ namespace Kai_Engine.ENGINE.UserInterface
         ///######################################################################
         public void Init()
         {
-            //Set sprite paths
-            _inventorySpritePath = Path.Combine(workingDirectory, "GAME/Assets/inventory_sprite.png");
-
-            //Initialize UI sprites
-            _inventorySpriteTexture = Raylib.LoadTexture(_inventorySpritePath);
+            
         }
 
         public void Start()
@@ -110,8 +97,8 @@ namespace Kai_Engine.ENGINE.UserInterface
             {
                 IsLoaded = true,
                 Tag = "Exclamation Point Sprite",
-                FilePath = _inventorySpritePath,
-                Texture = _inventorySpriteTexture,
+                FilePath = AssetLoader._inventorySpritePath,
+                Texture = AssetLoader._inventorySpriteTexture,
             };
 
             UIObject inventoryBlock = new UIObject(sprite.Texture, position, scale, Layer.UI, true);

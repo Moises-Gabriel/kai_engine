@@ -31,6 +31,7 @@ namespace Kai_Engine.ENGINE
 
         public void Init()
         {
+            AssetLoader.Load(); // Load all assets
 
             if (_editable) _kaiEditor.Init();
 

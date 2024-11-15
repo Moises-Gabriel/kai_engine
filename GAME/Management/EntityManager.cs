@@ -19,15 +19,9 @@ namespace Kai_Engine.GAME.Management
         ///######################################################################
 
         #region Entity Variables
-        private static string workingDirectory = Environment.CurrentDirectory;
-
         //List of all entities/GameObjects in the game
         public List<IEntity> Entities = new();
         public List<GameObject> AllObjects = new();
-
-        //Sprite Sheet
-        public string? _spriteSheetPath = "";
-        public Texture2D _spriteSheet = new();
 
         //Item Entity                         
         private Rectangle _itemRec = new();
@@ -65,13 +59,9 @@ namespace Kai_Engine.GAME.Management
 
         public void Init()
         {
-            //Set path & Initialize spritesheet
-            _spriteSheetPath = Path.Combine(workingDirectory, "GAME/Assets/sprite_sheet.png");
-            _spriteSheet = Raylib.LoadTexture(_spriteSheetPath);
-
             //Spritesheet Rectangles
-            int w = _spriteSheet.Width / 10;
-            int h = _spriteSheet.Height / 10;
+            int w = AssetLoader._spriteSheet.Width / 10;
+            int h = AssetLoader._spriteSheet.Height / 10;
 
             _playerRec = new(16, 0, w, h);
 
@@ -133,7 +123,7 @@ namespace Kai_Engine.GAME.Management
         }
         public void AddPlayer(Vector2 spawnPoint)
         {
-            GameObject _player = new(_spriteSheet, _playerRec, spawnPoint, Layer.Player, "Player", true);
+            GameObject _player = new(AssetLoader._spriteSheet, _playerRec, spawnPoint, Layer.Player, "Player", true);
             player = _player;
 
             //Add Components
@@ -155,7 +145,7 @@ namespace Kai_Engine.GAME.Management
         }
         public void AddItem(Vector2 spawnPoint)
         {
-            GameObject item = new(_spriteSheet, _itemRec, spawnPoint, Layer.Item, "Item", true);
+            GameObject item = new(AssetLoader._spriteSheet, _itemRec, spawnPoint, Layer.Item, "Item", true);
 
             //Add components
             kCollider itemCollider = new();
@@ -181,7 +171,7 @@ namespace Kai_Engine.GAME.Management
             Random random = new Random();
             int counter = 0;
             counter++;
-            GameObject walls = new GameObject(_spriteSheet, _wallRecs[random.Next(0, _wallRecs.Count)], new Vector2(currentPosition.X, currentPosition.Y), Layer.Wall, $"Wall_{counter}", true);
+            GameObject walls = new GameObject(AssetLoader._spriteSheet, _wallRecs[random.Next(0, _wallRecs.Count)], new Vector2(currentPosition.X, currentPosition.Y), Layer.Wall, $"Wall_{counter}", true);
 
             //Initializing wall entity components
             kCollider wallCollider = new kCollider();
@@ -211,7 +201,7 @@ namespace Kai_Engine.GAME.Management
         {
             Random random = new Random();
             //Place floors
-            GameObject floor = new GameObject(_spriteSheet, _floorRecs[random.Next(0, _floorRecs.Count)], new Vector2(position.X, position.Y), Layer.Floor, $"Floor", true);
+            GameObject floor = new GameObject(AssetLoader._spriteSheet, _floorRecs[random.Next(0, _floorRecs.Count)], new Vector2(position.X, position.Y), Layer.Floor, $"Floor", true);
             Entities.Add(floor);
             freePositions.Add(floor.Transform.position);
         }
@@ -220,7 +210,7 @@ namespace Kai_Engine.GAME.Management
             Random random = new Random();
             int counter = 0;
             counter++;
-            GameObject rock = new GameObject(_spriteSheet, _rockRecs[random.Next(0, _rockRecs.Count)], new Vector2(currentPosition.X, currentPosition.Y), Layer.Wall, $"Wall_{counter}", true);
+            GameObject rock = new GameObject(AssetLoader._spriteSheet, _rockRecs[random.Next(0, _rockRecs.Count)], new Vector2(currentPosition.X, currentPosition.Y), Layer.Wall, $"Wall_{counter}", true);
 
             //Initializing wall entity components
             kCollider rockCollider = new kCollider();
