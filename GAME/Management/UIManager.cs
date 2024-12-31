@@ -32,7 +32,7 @@ namespace Kai_Engine.ENGINE.UserInterface
         ///######################################################################
         public void Init()
         {
-            
+
         }
 
         public void Start()
@@ -97,8 +97,8 @@ namespace Kai_Engine.ENGINE.UserInterface
             {
                 IsLoaded = true,
                 Tag = "Exclamation Point Sprite",
-                FilePath = AssetLoader._inventorySpritePath,
-                Texture = AssetLoader._inventorySpriteTexture,
+                FilePath = AssetLoader.InventorySpritePath,
+                Texture = AssetLoader.InventorySpriteTexture,
             };
 
             UIObject inventoryBlock = new UIObject(sprite.Texture, position, scale, Layer.UI, true);
