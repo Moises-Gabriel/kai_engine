@@ -1,0 +1,30 @@
+{
+	"identifier": "Level_0",
+	"uniqueIdentifer": "3e62fa80-c210-11ef-bc2d-cb8bdf535f62",
+	"x": 0,
+	"y": 0,
+	"width": 320,
+	"height": 180,
+	"bgColor": "#696A79",
+	"neighbourLevels": [],
+	"customFields" : {},
+	"layers": [
+		"Background.png",
+		"Collision.png"
+	],
+	"entities": {
+		"Player_Start": [
+			{
+				"id": "Player_Start",
+				"iid": "8bd71830-c210-11ef-bc2d-430854dbe395",
+				"layer": "Player",
+				"x": 32,
+				"y": 80,
+				"width": 16,
+				"height": 16,
+				"color": 16714718,
+				"customFields" : {}
+			}
+		]
+	}
+}
