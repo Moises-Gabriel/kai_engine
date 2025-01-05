@@ -24,5 +24,11 @@ namespace Kai_Engine.ENGINE.Utils
             InventorySpritePath = Path.Combine(workingDirectory, "GAME/Assets/inventory_sprite.png");
             InventorySpriteTexture = Raylib.LoadTexture(InventorySpritePath);
         }
+
+        public static void LoadLDtK()
+        {
+            LDtKLoader loader = new LDtKLoader();
+            loader.Load(Path.Combine(workingDirectory, "GAME/Assets/LDtK/Practice/simplified/Level_0/data.json"));
+        }
     }
 }
